@@ -1,0 +1,59 @@
+<#include '/admin/header.html' >
+<form id="checkForm" method="post" class="validate" >
+	<table class="form-table" width="100%" style="background-color: white;">
+		<tr>
+			<td  style="width: 10%;" align="right"><label>验证码:</label></td>
+			<td><input class="easyui-validatebox input_text" type="text" id="codeNumber"
+						name="name" data-options="required:true"  maxlength="20"/>&nbsp;&nbsp;
+				<input type="button" id="checkCode" class="button blueButton" value="验证"/>
+				<input type="hidden" id="self_store" value="${self_store}">
+			</td>
+		</tr>
+	</table>
+</form>
+
+<script>
+
+$(function(){
+	$("#checkCode").click(function(){
+		var code = $("#codeNumber").val();
+		var self_store = $("#self_store").val();
+		if(code == ""){
+			alert("请输入验证码！");
+			 return;
+		}
+		
+		$.ajax({
+			url : "${ctx}/shop/admin/service-goods/check-code.do",
+			data:{'code':code,'self_store':self_store},
+			dataType: "json", 
+			success : function(result) {
+				if(result.message=="success"){
+					if(confirm("验证成功!是否消费？")){
+						$.ajax({
+							url : "${ctx}/shop/admin/service-goods/service-goods-used.do",
+							data:{'code':code},
+							dataType: "json", 
+							success : function(data) {
+								if(data.checkCode==1){
+									$.Loading.success("消费成功!有效期至:【"+data.enable_time+"】");
+								}else{
+									$.Loading.error(data.message);
+								}
+								
+								
+							}
+						});	
+					}
+				}else{
+					$.Loading.error(result.message);
+				}
+			}
+		});	
+	});
+});
+</script>
+
+
+
+<#include '/admin/footer.html' >

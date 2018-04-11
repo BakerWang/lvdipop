@@ -1,0 +1,33 @@
+
+<div class="easyui-panel" style="border-style:none;" >
+	<div style="padding: 10px 0 10px 60px">
+		<form id="addThemesForm" method="post" class="validate" >
+			<input type="hidden" name="siteid" value="0" />
+			<table>
+				<tr>
+					<td>模板名称:</td>
+					<td><input class="easyui-validatebox input_text" type="text" name="themename" data-options="required:true" isrequired="true" maxlength="50"  />
+					</td>
+				</tr>
+				
+				<tr>
+					<td>文件夹名称：</td>
+					<td><input class="easyui-validatebox input_text" type="text" name="path" data-options="required:true"   dataType="string" isrequired="true" maxlength="50"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>作者：</td>
+					<td><input class="easyui-validatebox input_text" type="text" name="author" data-options="required:true"  dataType="string" isrequired="true" maxlength="50"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>版本号：</td>
+					<td><input class="easyui-validatebox input_text" type="text" name="version" data-options="required:true"  dataType="int" isrequired="true" maxlength="50"/>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</div>

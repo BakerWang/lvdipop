@@ -1,0 +1,265 @@
+/**
+ * 
+ */
+package com.bizdata.management.controller;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.bizdata.commons.utils.JsonMessageUtil;
+import com.bizdata.commons.utils.JsonResultUtils;
+import com.bizdata.commons.utils.Utils;
+import com.bizdata.framework.exception.PageConditionException;
+import com.bizdata.framework.exception.SearchConditionException;
+import com.bizdata.framework.exception.SortConditionException;
+import com.bizdata.management.domain.Agreement;
+import com.bizdata.management.domain.AgreementType;
+import com.bizdata.management.service.AgreementService;
+import com.bizdata.management.service.AgreementTypeService;
+import com.bizdata.management.service.Agreement_TypeService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+
+
+/**   
+ * 
+ * @author caojie 
+ * @date 2016年9月8日下午3:15:34
+ * 
+ */
+@Controller
+@RequestMapping(value="admin/agreement")
+@ConfigurationProperties(prefix = "qiniu")
+public class AgreementController {
+	@Autowired
+	private AgreementService agreementService;
+	
+	@Autowired
+	private AgreementTypeService agreementTypeService;
+	
+	@Autowired
+	private Agreement_TypeService agreement_TypeService;
+	
+	@Autowired
+	private JsonMessageUtil jsonMessageUtil;
+	
+	@RequestMapping(method = RequestMethod.GET)
+    public ModelAndView list() {
+		ModelAndView mv=new ModelAndView("/management/agreement_list");
+    	return mv;
+    }
+	
+	@Autowired
+    public Utils utils;
+	
+	private String savehttp;
+
+    private String savepath;
+	
+	
+	/**
+	 * @return the savehttp
+	 */
+	public String getSavehttp() {
+		return savehttp;
+	}
+
+	/**
+	 * @param savehttp the savehttp to set
+	 */
+	public void setSavehttp(String savehttp) {
+		this.savehttp = savehttp;
+	}
+
+	/**
+	 * @return the savepath
+	 */
+	public String getSavepath() {
+		return savepath;
+	}
+
+	/**
+	 * @param savepath the savepath to set
+	 */
+	public void setSavepath(String savepath) {
+		this.savepath = savepath;
+	}
+
+	@InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        // 表示如果命令对象有Date类型的属性，将使用该属性编辑器进行类型转换
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd"), true));
+    }
+	
+	@RequestMapping(value="/list",method = RequestMethod.GET)
+	@ResponseBody
+	public String findAllByPage(Agreement agreement)
+			throws SortConditionException, PageConditionException, SearchConditionException{
+		
+		Map<String,Object> map=new HashMap<String, Object>();
+		Page<Agreement> li=agreementService.findAll(agreement,null);
+		map.put("rows", li.getContent());
+		map.put("currentPage", agreement.getCurrentPage());
+		map.put("totalPageSize", li.getTotalPages());
+		map.put("totalRecords", li.getTotalElements());
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd H:m:s").create();
+		
+		return gson.toJson(map);
+	}
+	
+	@RequiresPermissions("root:agreement:agreement_add")
+	@RequestMapping(value = "/create",method = RequestMethod.GET)
+    public ModelAndView create() {
+		ModelAndView mv=new ModelAndView("/management/agreement_create");
+		mv.addObject("agreement",new Agreement());
+		
+//		List<Agreement_Type> type=agreement_TypeService.findType();
+//		mv.addObject("list",type);
+		List<AgreementType> agreementTypes = agreementTypeService.selectAll();
+        mv.addObject("agreementTypes", agreementTypes);
+		return mv;
+    }
+	
+	@RequiresPermissions("root:agreement:agreement_add")
+	@RequestMapping(value="/create")
+	@ResponseBody
+	public String createArgeement(Agreement agreement){
+		String json = "";
+		
+		if(agreement!=null){
+			try {
+				Agreement ag=new Agreement();
+				if(agreement.getId()!=null&&!"".equals(agreement.getId())){
+					ag=agreementService.findAgreement(agreement.getId());
+				}
+				ag.setDateofsigning(agreement.getDateofsigning());
+				ag.setDetails(agreement.getDetails());
+				ag.setFile(agreement.getFile());
+				ag.setNumber(agreement.getNumber());
+				ag.setOtherperson(agreement.getOtherperson());
+				ag.setOtherunits(agreement.getOtherunits());
+				ag.setOurperson(agreement.getOurperson());
+				ag.setOurunits(agreement.getOurunits());
+				ag.setTitle(agreement.getTitle());
+				ag.setAgreementType(agreement.getAgreementType());
+				ag.setFilename(agreement.getFilename());
+				agreementService.createAgreement(ag);
+				json = JsonResultUtils.success("新增协议成功");
+			} catch (Exception e) {
+				json = JsonResultUtils.error("信息不完整，请确认后重新提交");
+			}
+		}
+		return json;
+	}
+	
+	@RequiresPermissions("root:agreement:agreement_add")
+	@RequestMapping(value="/showtype")
+	public ModelAndView showType(Model model){
+		ModelAndView mv=new ModelAndView("/management/agreement_create");
+//		mv.addObject("type",new Agreement_Type());
+//		List<Agreement_Type> type=agreement_TypeService.findType();
+//		mv.addObject("list",type);
+		return mv;
+	}
+	
+	@RequiresPermissions("root:agreement:agreement_update")
+	@RequestMapping(value = "/update/{id}",method = RequestMethod.GET)
+    public ModelAndView update(@PathVariable String id) {
+		ModelAndView mv=new ModelAndView("/management/agreement_create");
+		Agreement agreement = agreementService.findAgreement(id);
+//		List<Agreement_Type> type=agreement_TypeService.findType();
+//		mv.addObject("list",type);
+//		mv.addObject("agreement",agreement);
+		
+		List<AgreementType> agreementTypes = agreementTypeService.selectAll();
+		mv.addObject("agreement", agreement);
+        mv.addObject("agreementTypes", agreementTypes);
+		return mv;
+    }
+	
+	@RequestMapping(value = "/show/{id}",method = RequestMethod.GET)
+    public ModelAndView show(@PathVariable String id) {
+		ModelAndView mv=new ModelAndView("/management/agreement_show");
+		Agreement agreement = agreementService.findAgreement(id);
+//		List<Agreement_Type> type=agreement_TypeService.findType();
+//		mv.addObject("list",type);
+		mv.addObject("agreement",agreement);
+		return mv;
+    }
+	
+	
+	@RequiresPermissions("root:agreement:agreement_delete")
+	@RequestMapping(value="/delete",method=RequestMethod.POST)
+	@ResponseBody
+	public String deleteOne(Agreement agreement){
+		String json="";
+		if(agreement.getId()!=null&&!"".equals(agreement.getId())){
+			try {
+				agreementService.deleteOne(agreement.getId());
+				json = JsonResultUtils.success("删除成功");
+			} catch (Exception e) {
+				json = JsonResultUtils.error("删除失败");
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping("/uploadpic")
+    @ResponseBody
+    public String fileUpload(HttpServletRequest request, HttpServletResponse response) {
+        String img = "";
+        String json = "";
+        // 判断是否是multipart类型的请求。
+        if (request instanceof MultipartHttpServletRequest) {
+            MultipartHttpServletRequest mrequest = (MultipartHttpServletRequest) request;
+
+            Iterator<String> it = mrequest.getFileNames();
+
+            // 获取他文件上传的对象
+            String fileName = it.next();
+            MultipartFile multipartFile = mrequest.getFile(fileName);
+            String time = new SimpleDateFormat("yyyyMMddHHMMSS").format(new Date());
+            String  path = savepath + time + "/";
+            File f = new File(path);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
+            String filename = utils.saveFile(multipartFile, path);
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("img", savehttp + time + "/" + filename);
+            map.put("imgname",multipartFile.getOriginalFilename());
+            json = jsonMessageUtil.setSuccessJson("上传成功", map);
+
+        } else {
+            json = jsonMessageUtil.setErrorJson("上传失败");
+        }
+        return json;
+    }
+	
+}

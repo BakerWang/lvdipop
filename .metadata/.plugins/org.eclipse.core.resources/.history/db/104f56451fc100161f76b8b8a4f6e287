@@ -1,0 +1,45 @@
+logging: #logback config
+  config: classpath:logback-spring.xml
+  file: logs/spring-boot.log
+  level.: info
+  
+server: #server config
+  port: 8080
+  session:
+    timeout: 18000
+  tomcat:
+    uri-encoding: utf-8
+  
+spring:
+  main: #spring boot config
+    show-banner: false #关闭banner
+    
+  datasource: #data source config
+    url: jdbc:mysql://192.168.88.200:3306/nju?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 123456
+    driverClassName: com.mysql.jdbc.Driver
+    initScriptFile: /sql/init.sql
+    
+  jpa: #jpa config
+    database: MYSQL
+    show-sql: true
+    
+    hibernate:
+      ddl-auto: update
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+      
+      
+  messages: #i18n config
+    basename: i18n/messages
+   
+  thymeleaf: #thymeleaf config
+    prefix: classpath:/templates
+    mode: HTML5
+    encoding: UTF-8
+    content-type: text/html
+    cache: false
+    
+qiniu: #qiniu上传的信息
+  savepath: D:/Program Files (x86)/apache-tomcat-8.0.24/webapps/file
+  savehttp: http://127.0.0.1:5149/file/

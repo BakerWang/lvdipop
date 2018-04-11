@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop-reference-model>
+<aop-project name="b2b2c-core"/>
+<aop-project name="b2c"/>
+<aop-project name="shop-core"/>
+<aop-project name="cms-core"/>
+<aop-project name="core"/>
+<aop-project name="syncData"/>
+<aop-project name="service-goods"/>
+</aop-reference-model>

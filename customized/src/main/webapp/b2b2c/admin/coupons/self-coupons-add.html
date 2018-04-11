@@ -1,0 +1,129 @@
+<div class="main" style="background-color: white;" >
+	<div class="easyui-panel" style="border-style: none;">
+		<div style="padding: 10px 0 10px 20px">
+			<form id="add-form" method="post" class="validate">
+				<table>
+					<tr>
+						<td>优惠券名称：</td>
+						<td>
+							<input class="input_text easyui-validatebox" type="text" name="coupons_name" data-options="required:true" maxlength="10"/>
+						</td>
+					</tr>
+					<tr>
+						<td>优惠券类型：</td>
+						<td>
+							<input class="input_redio" type="radio" name="coupons_type" data-options="required:true" checked="checked" value="0">满减券</input>
+							<input class="input_redio" type="radio" name="coupons_type" data-options="required:true" value="1">折扣券</input>
+							<input class="input_redio" type="radio" name="coupons_type" data-options="required:true" value="2">现金券</input>
+						</td>
+					</tr>
+					<tr class="coupons-money-tr">
+						<td>优惠券面额（元）：</td>
+						<td>
+							<input class="input_text easyui-numberbox" type="text" name="coupons_money" dataType="float" precision="2" maxlength="10" style="width: 150px;"/>
+						</td>
+					</tr>
+					<tr class="coupons-discount-tr">
+						<td>优惠券折扣（%）：</td>
+						<td>
+							<input class="input_text easyui-numberbox" type="text" name="coupons_discount" maxlength="2" placeholder="请填写0~100的正整数" style="width: 150px;"/>
+							<span style="color:#999">例如80，即按消费的80%付款即可</span>
+						</td>
+					</tr>
+					<tr class="order-money-tr">
+						<td>买家需消费满（元）：</td>
+						<td>
+							<input class="input_text easyui-numberbox" type="text" name="min_order_money" dataType="float" precision="2" maxlength="10" style="width: 150px;"/>
+						</td>
+					</tr>
+					<tr>
+						<td>有效日期：</td>
+						<td>
+							<input class="input_text easyui-datebox" editable="false" type="text" name="startDate" data-options="required:true" style="width: 150px;"/>
+							<span>&nbsp;-&nbsp;</span>
+							<input class="input_text easyui-datebox" editable="false" type="text" name="endDate" data-options="required:true" style="width: 150px;"/>
+						</td>
+					</tr>
+					<tr>
+						<td>使用地区：</td>
+						<td>
+							<select name="province_id" class="province-id" style="width: 150px;" >
+								<option value="0">请选择</option>
+								<#if provinceList??>
+									<#list provinceList as province>
+										<option value="${province.region_id}">${province.local_name}</option>
+									</#list>
+								</#if>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>发行量（个）：</td>
+						<td>
+							<input class="input_text easyui-numberbox" type="text" name="coupons_stock" data-options="required:true" maxlength="10" style="width: 150px;""/>
+						</td>
+					</tr>
+					<tr>
+						<td>每人限领（个）：</td>
+						<td>
+							<input class="input_text easyui-numberbox" type="text" name="limit_num" data-options="required:true" maxlength="10" style="width: 150px;""/>
+						</td>
+					</tr>
+					<tr>
+						<td>优惠券描述：</td>
+						<td>
+							<textarea name="coupons_describe" class="input_text" placeholder="描述限制输入100个字符" maxlength="100" style="width: 180px; height: 80px;"></textarea>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	var checkVal = $("input[name='coupons_type']:checked").val();
+	
+	//如果优惠券类型为满减券 0：满减券，1：折扣券，2：现金券
+	if (checkVal == 0) {
+		$(".coupons-money-tr").show();
+		$(".order-money-tr").show();
+		$(".coupons-discount-tr").hide();
+    	$("input[name='coupons_discount']").val("");
+	} else if (checkVal == 1) {
+    	$(".coupons-money-tr").hide();
+    	$(".coupons-discount-tr").show();
+    	$(".order-money-tr").show();
+    	$("input[name='coupons_money']").val("");
+	} else {
+		$(".coupons-money-tr").show();
+		$(".order-money-tr").hide();
+    	$(".coupons_discount-tr").hide();
+    	$("input[name='coupons_discount']").val("");
+    	$("input[name='min_order_money']").val("");
+	}
+	
+	$("input[name='coupons_type']").click(function(){
+		var type = $(this).val();
+		
+		//如果优惠券类型为满减券 0：满减券，1：折扣券，2：现金券
+		if (type == 0) {
+			$(".coupons-money-tr").show();
+			$(".order-money-tr").show();
+			$(".coupons-discount-tr").hide();
+	    	$("input[name='coupons_discount']").val("");
+		} else if (type == 1) {
+	    	$(".coupons-money-tr").hide();
+	    	$(".coupons-discount-tr").show();
+	    	$(".order-money-tr").show();
+	    	$("input[name='coupons_money']").val("");
+		} else {
+			$(".coupons-money-tr").show();
+			$(".order-money-tr").hide();
+	    	$(".coupons-discount-tr").hide();
+	    	$("input[name='coupons_discount']").val("");
+	    	$("input[name='min_order_money']").val("");
+		}
+	});
+});
+</script>

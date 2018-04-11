@@ -1,0 +1,66 @@
+<div>
+	<style>
+.markposbox {
+	width: 350px;
+}
+
+.markposbox li {
+	width: 100px;
+	float: left;
+	border: 1px solid #CCC;
+	margin: 2px;
+}
+
+span.jiqun {
+	border-bottom: 1px solid #ccc;
+	display: block;
+	font-size: 16px;
+	font-weight: bold;
+	width: 500px;
+}
+table tr th{text-aligna:left;padding:0px 0px 0px 10px}
+.form-table th{text-align:left;}
+</style>
+	<div class="main" style="background-color: white;">
+		<table class="form-table">
+			
+			
+			
+			
+			
+			<tr>
+				<td colspan="2"><span class="jiqun">sorl设置</span></td>
+			</tr>
+			<tr>
+				<th class="label" style="vertical-align:center;">solr方案：</th>
+				<td><input type="radio" name="cluster.solr_open" clz="fastdfsComponent" value="1"  <#if cluster.solr_open=="1">checked="checked"</#if>/>开启&nbsp;&nbsp;&nbsp;&nbsp; 
+					<input type="radio" name="cluster.solr_open"  value="0"  <#if cluster.solr_open=="0">checked="checked"</#if>/>关闭 <br>
+				</td>
+			</tr>
+			<tr>
+				<th class="label">
+					solr服务器地址:
+				</th>
+				<td>
+					<input type="text" class="input_text combo" id="solr" name="cluster.solr" style="width:300px" value="${cluster.solr}" />
+				</td>
+			</tr>
+							
+			<tr>
+				<th class="label">
+					生成索引:
+				</th>
+				<td>
+					<a href="javascript:newTab('生成商品索引','${ctx}/shop/admin/goods-index/input.do')">点击这里去生成所有索引。</a></span>
+				</td>
+			</tr>
+			
+			
+		</table>
+	</div>
+
+	<div class="blank"
+		style="width: 100%; height: 50px; background: #fff; margin: 0px; padding: 0px;"></div>
+</div>
+
+

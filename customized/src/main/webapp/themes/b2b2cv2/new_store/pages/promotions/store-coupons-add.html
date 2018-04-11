@@ -1,0 +1,154 @@
+<#-- 创建获取省级地区列表标签 -->
+<#assign provinceListTag = newTag("provinceListTag")>
+<#-- 调用获取省级地区列表标签 -->
+<#assign provinceList = provinceListTag()/>
+<link rel="stylesheet" href="${ctx}${themes_path}/new_store/css/pages/promotions/coupon.css">
+<div class="sotre_bonus">
+    <form id="coupons_form" class="coupon-form">
+        <input type="hidden" value="save-add" class="submit-type">
+        <dl>
+            <dt>优惠券名称：</dt>
+            <dd>
+                <input type="text" name="coupons_name" class="form-control" maxlength="10" >
+                <span style="color:#999">请输入10个以内汉字</span>
+            </dd>
+        </dl>
+        <dl>
+            <dt>优惠券类型：</dt>
+            <dd>
+            	<div style="display: inline-block;">
+            		<input type="radio" name="coupons_type" value="0" class="form-control coupons_type" checked="checked" style="width: 20px;"/>
+            		<span>满减券</span>
+            	</div>
+            	<div style="display: inline-block;">
+            		<input type="radio" name="coupons_type" value="1" class="form-control coupons_type" style="width: 20px;"/>
+            		<span>折扣券</span>
+            	</div>
+            	<div style="display: inline-block;">
+            		<input type="radio" name="coupons_type" value="2" class="form-control coupons_type" style="width: 20px;"/>
+            		<span>现金券</span>
+            	</div>
+            </dd>
+        </dl>
+        <dl class="coupons-money-dl">
+            <dt>优惠券面额（元）：</dt>
+            <dd>
+                <input type="text" name="coupons_money" class="form-control coupons_money" value="" id="coupons-money"
+                       onkeyup="this.value=this.value.replace(/[^\d.]/g,'')" onafterpaste="this.value=this.value.replace(/[^\d.]/g,'')" maxlength="7">
+            </dd>
+        </dl>
+        <dl class="coupons_discount-dl">
+            <dt>优惠券折扣（%）：</dt>
+            <dd>
+                <input type="text" name="coupons_discount" class="form-control coupons_discount" value="" id="coupons-discount" placeholder="请填写0~100的整数"
+                       onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" maxlength="2">
+                <span style="color:#999">例如80，即按消费的80%付款即可</span>
+            </dd>
+        </dl>
+        <dl class="order-money-dl">
+            <dt>买家需消费满（元）：</dt>
+            <dd>
+                <input type="text" name="min_order_money"  class="form-control min_order_money" value="" id="min-order-money"
+                       onkeyup="this.value=this.value.replace(/[^\d.]/g,'')" onafterpaste="this.value=this.value.replace(/[^\d.]/g,'')" maxlength="7">
+            </dd>
+        </dl>
+        <dl>
+            <dt>有效日期：</dt>
+            <dd>
+                <input type="text" class="form-control dialog-time-start" name="startDate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'%y-%M-%d'})" 
+                	readonly="readonly" style="background-color: #ffffff; cursor: pointer; "/>
+                <span>&nbsp;-&nbsp;</span>
+            	<input type="text" class="form-control dialog-time-end" name="endDate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'%y-%M-%d'})" 
+            		readonly="readonly" style="background-color: #ffffff; cursor: pointer; "/>
+            </dd>
+        </dl>
+        <dl>
+            <dt>使用地区：</dt>
+            <dd>
+                <span class="promotions-style-select gift-all">
+	                <select class="province-id" name="province_id">
+	                    <option value="0">请选择</option>
+	                    <#if provinceList??>
+	                        <#list provinceList as province>
+	                            <option value="${province.region_id}">${province.local_name}</option>
+	                        </#list>
+	                    </#if>
+	                </select>
+				</span>
+            </dd>
+        </dl>
+        <dl>
+            <dt class="required">
+                发行量（个）：
+            </dt>
+            <dd>
+                <input type="text" maxlength="7" name="coupons_stock" class="form-control coupons-stock" id="coupons-stock"
+                       onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')">
+            </dd>
+        </dl>
+        <dl>
+            <dt class="required">
+                每人限领（个）：
+            </dt>
+            <dd>
+                <input type="text" maxlength="7" name="limit_num" class="form-control limit-num" id="limit-num"
+                       onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')">
+            </dd>
+        </dl>
+        <dl>
+            <dt class="required" style="height: 90px; vertical-align: middle;">
+                优惠券描述：
+            </dt>
+            <dd>
+                <textarea name="coupons_describe" class="form-control coupons-describe" placeholder="描述限制输入100个字符" maxlength="100" style="width: 180px; height: 80px;display: inline-block;"></textarea>
+            </dd>
+        </dl>
+    </form>
+</div>
+<script type="text/javascript">
+$(function(){
+	var checkVal = $("input[name='coupons_type']:checked").val();
+	
+	//如果优惠券类型为满减券 0：满减券，1：折扣券，2：现金券
+	if (checkVal == 0) {
+		$(".coupons-money-dl").show();
+		$(".order-money-dl").show();
+    	$(".coupons_discount-dl").hide();
+    	$(".coupons_discount").val("");
+	} else if (checkVal == 1) {
+		$(".order-money-dl").show();
+    	$(".coupons_discount-dl").show();
+    	$(".coupons-money-dl").hide();
+    	$(".coupons_money").val("");
+	} else {
+		$(".coupons-money-dl").show();
+		$(".order-money-dl").hide();
+    	$(".coupons_discount-dl").hide();
+    	$(".coupons_discount").val("");
+    	$(".min_order_money").val("");
+	}
+	
+	$(".coupons_type").click(function(){
+		var type = $(this).val();
+		
+		//如果优惠券类型为满减券 0：满减券，1：折扣券，2：现金券
+		if (type == 0) {
+			$(".coupons-money-dl").show();
+			$(".order-money-dl").show();
+	    	$(".coupons_discount-dl").hide();
+	    	$(".coupons_discount").val("");
+		} else if (type == 1) {
+			$(".order-money-dl").show();
+	    	$(".coupons_discount-dl").show();
+	    	$(".coupons-money-dl").hide();
+	    	$(".coupons_money").val("");
+		} else {
+			$(".coupons-money-dl").show();
+			$(".order-money-dl").hide();
+	    	$(".coupons_discount-dl").hide();
+	    	$(".coupons_discount").val("");
+	    	$(".min_order_money").val("");
+		}
+	});
+});
+</script>

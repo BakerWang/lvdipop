@@ -1,0 +1,158 @@
+package com.enation.app.shop.mobile.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.enation.app.b2b2c.core.goods.service.impl.StoreGoodsTagManager;
+import com.enation.app.b2b2c.core.store.utils.DistanceUtil;
+import com.enation.app.shop.mobile.service.IApiStoreManager;
+import com.enation.eop.sdk.utils.StaticResourcesUtil;
+import com.enation.framework.database.IDaoSupport;
+import com.enation.framework.database.Page;
+import com.enation.framework.util.StringUtil;
+
+/**
+ * 
+ * @ClassName: ApiStoreManager 
+ * @Description: 店铺API
+ * @author: liuyulei
+ * @date: 2016年10月12日 下午3:03:22 
+ * @since:v61
+ */
+@Service
+public class ApiStoreManager implements IApiStoreManager  {
+
+	@SuppressWarnings("rawtypes")
+	@Autowired
+	private IDaoSupport daoSupport;
+	
+	@Autowired
+	StoreGoodsTagManager storeGoodsTagManager;
+	
+	/* (non Javadoc) 
+	 * @param other
+	 * @param disabled
+	 * @param pageNo
+	 * @param pageSize
+	 * @return 
+	 * @see com.enation.app.shop.mobile.service.IApiStoreManager#storeList(java.util.Map, java.lang.Integer, int, int) 
+	 * @author： liuyulei
+	 * @date：2016年10月24日 下午12:01:09
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public Page storeList(Map other, Integer disabled, int pageNo, int pageSize) {
+		StringBuffer sql = new StringBuffer("");
+		disabled = disabled == null ? 1 : disabled;
+		String store_name = other.get("store_name") == null ? "" : other.get("store_name").toString();
+		String city_name = other.get("city_name") == null ? "" : other.get("city_name").toString();
+		Double longitude = Double.parseDouble(other.get("longitude") == null ? "0" : other.get("longitude").toString());
+		Double latitude = Double.parseDouble(other.get("latitude") == null ? "0" : other.get("latitude").toString());
+		Double sclassify_id = Double.parseDouble(other.get("sclassify_id") == null ? "-1" : other.get("sclassify_id").toString());
+		Integer store_recommend = Integer.parseInt(other.get("store_recommend") == null ? "-1" : other.get("store_recommend").toString());
+		String searchType = other.get("searchType") == null ? "" : other.get("searchType").toString();
+
+		List<Object> paramsList = new ArrayList<Object>();
+		sql.append("select s.store_id,s.store_name,s.store_province,s.store_city,s.store_region,s.attr,s.store_logo,s.longitude,"
+				+ "s.latitude,s.store_recommend,s.store_profile from es_store s   where  disabled=1 ");
+
+		//判断店铺名称是否传参
+		if (!StringUtil.isEmpty(store_name)) {
+			sql.append("  and s.store_name like ?");
+			paramsList.add("%" + store_name+ "%");
+		}
+		
+		//  添加搜索条件   城市名称  分类id   add by liuyulei   2016-10-11
+		if (!StringUtil.isEmpty(city_name)) {
+			sql.append("  and s.store_city like ? ");
+			paramsList.add("%" + city_name+ "%");
+		}
+		//判断搜索条件  店铺分类是否有效
+		if (sclassify_id != -1) {
+			sql.append("  and s.store_sclassify_id = ? " );
+			paramsList.add(sclassify_id);
+		}
+		
+		//判断搜索条件是否推荐是否有效
+		if (store_recommend != -1) {
+			sql.append("  and s.store_recommend = ? " );
+			paramsList.add(store_recommend);
+		}
+		//排序
+		if (!StringUtil.isEmpty(searchType) && !searchType.equals("default")) {
+			sql.append(" order by " + searchType + " asc");
+			paramsList.add(searchType);
+		} else {
+			sql.append(" order by sort_num asc");
+		}
+		int size =paramsList.size();
+		Object[] args = paramsList.toArray(new Object[size]);
+		Page page = this.daoSupport.queryForPage(sql.toString(), pageNo, pageSize,args);
+		page.setCurrentPageNo(pageNo);
+		//*****************计算距离开始*******************
+		//根据入参经纬度  及数据库中经纬度   计算两点之间距离     并放入list中    add by liuyulei  2016-10-11
+		List<Map> list = (List) page.getResult();
+		for (Map map : list) {
+			Object obj = map.get("store_logo");
+			String logo = "";
+			if (obj != null ) {
+				String fsLogo = map.get("store_logo").toString();
+				logo = StaticResourcesUtil.convertToUrl(fsLogo);
+			}
+			map.put("store_logo", logo);
+			Double lon = Double.parseDouble(map.get("longitude") == null ? "0" : map.get("longitude").toString());
+			Double lat = Double.parseDouble(map.get("latitude") == null ? "0" : map.get("latitude").toString());
+			if (lon == 0 || lat == 0 || longitude == 0 || latitude == 0) { // 如果数据库中经纬度为空,且入参中经纬度为空
+				map.put("distance", -1);
+			} else {
+				map.put("distance", DistanceUtil.getDistance(lon, lat, longitude, latitude)); //单位:米
+			}
+			map.remove("longitude");
+			map.remove("latitude");
+			//查询推荐店铺下推荐商品
+			if(store_recommend == 1){
+			String store_id  = String.valueOf(map.get("store_id"));
+		    Map<String,Object> queryMap =new HashMap<String,Object>();
+		    queryMap.put("storeid", Integer.valueOf(store_id));
+		    queryMap.put("mark", "recommend");
+		    List<Map> goodsList = (List<Map>)storeGoodsTagManager.getGoodsList(queryMap, 1, 3).getResult();
+		    for (Map good : goodsList) {
+		    	good.put("thumbnail",StaticResourcesUtil.convertToUrl(good.get("thumbnail").toString()));
+		    	good.put("small",StaticResourcesUtil.convertToUrl(good.get("small").toString()));
+		    	good.put("big",StaticResourcesUtil.convertToUrl(good.get("big").toString()));
+			}
+//		    map.put("goodsList", (List)storeGoodsTagManager.getGoodsList(queryMap, 1, 3).getResult());
+		    map.put("goodsList", goodsList);
+			}
+		}
+		//*****************计算距离结束*******************
+		return page; 
+	}
+	
+	/* (non Javadoc) 
+	 * @param storeId
+	 * @return 
+	 * @see com.enation.app.shop.mobile.service.IApiStoreManager#getStore(java.lang.Integer) 
+	 * @author： liuyulei
+	 * @date：2016年10月24日 下午12:01:37
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public Map getStore(Integer storeId) {
+		String sql = "select s.store_id,s.store_name,s.store_province,s.store_city,s.store_region,s.attr,s.store_logo as store_logo,s.tel,s.description,s.business_start_hours,s.business_end_hours from es_store s where s.store_id= ?";
+		Map map = this.daoSupport.queryForMap(sql, storeId);
+		Object obj = map.get("store_logo");
+		String logo = "";
+		if (obj != null ) {
+			String fsLogo = map.get("store_logo").toString();
+			logo = StaticResourcesUtil.convertToUrl(fsLogo);
+		}
+		
+		map.put("store_logo", logo);
+		return map;
+	}
+	
+}

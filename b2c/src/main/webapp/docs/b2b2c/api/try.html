@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+	<title> API亲自试一试</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<script src="${staticserver}/js/common/jquery-1.8.3.min.js"></script>
+<script src="${staticserver}/js/common/jquery-form-2.33.js"></script>
+<link href="../stylecss.css" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" type="text/css" href="${ctx}/adminthemes/new/js/easy-ui/themes/gray/easyui.css"/>    
+<link rel="stylesheet" type="text/css" href="${ctx}/adminthemes/new/js/easy-ui/themes/icon.css"/>  
+<script type="text/javascript" src="${ctx}/adminthemes/new/js/easy-ui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="${ctx}/adminthemes/new/js/easy-ui/easyui-lang-zh_CN.js"></script>
+
+</head>
+
+<body>
+<div class="diadiv" ></div>
+
+<div id="header">
+	<div class="header_top">
+		<h1><em>JavsShop</em>文档</h1>
+	</div>
+</div>
+<#assign  apiurl="" />
+<#if api?exists >
+<#if api=="cart-pro-add" >
+  <#assign  apiurl="/api/shop/cart!addProduct.do?productid=1&num=1" />
+</#if>
+
+<!-- 结算 -->
+<#if api=="confirm" >
+  <#assign  apiurl="/api/bill/storeBill!confirm.do?id=1" />
+</#if>
+<!-- 店铺购物车api -->
+<#if api=="store-cat" >
+  <#assign  apiurl="/api/store/storeCart!addProduct.do?product" />
+</#if>
+<#if api=="sotre-cart-goods-add" >
+  <#assign  apiurl="/api/store/storeCart!addGoods.do?productid=1" />
+</#if>
+<#if api=="getCartData" >
+  <#assign  apiurl="/api/store/storeCart!getCartData.do?" />
+</#if>
+<#if api=="invalid" >
+  <#assign  apiurl="/api/store/storeCart!invalidGoods.do?" />
+</#if>
+<!-- 商品分类 -->
+<#if api=="getStoreGoodsChildJson" >
+  <#assign  apiurl="/api/b2b2c/goodsCat!getStoreGoodsChildJson.do?cat_id=1" />
+</#if>
+
+<#if api=="addGoodsCat" >
+  <#assign  apiurl="/api/b2b2c/goodsCat!addGoodsCat.do?store_cat_name=1&store_cat_pid=1&store_sort=1&disable=1" />
+</#if>
+
+<#if api=="editGoodsCat" >
+  <#assign  apiurl="/api/b2b2c/goodsCat!editGoodsCat.do?store_cat_name=dd&store_cat_pid=1&store_sort=1&disable=1&cat_id=1" />
+</#if>
+
+<#if api=="deleteStoreGoodsCat" >
+  <#assign  apiurl="/api/b2b2c/goodsCat!delete.do?cat_id=3" />
+</#if>
+
+<#if api=="delAllStoreGoodsCat" >
+  <#assign  apiurl="/api/b2b2c/goodsCat!delAll.do?catids=1&catnames=1" />
+</#if>
+<!-- 商品管理 -->
+<#if api=="addStoreGoods" >
+  <#assign  apiurl="/api/b2b2c/goods!add.do" />
+</#if>
+
+<#if api=="deleStoreGoods" >
+  <#assign  apiurl="/api/b2b2c/goods!deleteGoods.do?goods_id=1" />
+</#if>
+<#if api=="underStoreGoods" >
+  <#assign  apiurl="/api/b2b2c/goods!underGoods.do?goods_id=1" />
+</#if>
+<#if api=="cleanStoreGoods" >
+  <#assign  apiurl="/api/b2b2c/goods!cleanGoods.do?goods_id=1" />
+</#if>
+<#if api=="checkProInOrder" >
+  <#assign  apiurl="/api/b2b2c/goods!checkProInOrder.do?productid=1" />
+</#if>
+<#if api=="saveGoodsStore" >
+  <#assign  apiurl="/api/b2b2c/goods!saveGoodsStore.do?goods_id=1&storeIds=1&storeNum=1&productIds=1" />
+</#if>
+
+<#if api=="revertGoods" >
+  <#assign  apiurl="/api/b2b2c/goods!revertGoods.do?goods_id=1" />
+</#if>
+<#if api=="search" >
+  <#assign  apiurl="/api/b2b2c/goods!search.do" />
+</#if>
+<#if api=="snIsExist" >
+  <#assign  apiurl="/api/b2b2c/goods!snIsExist.do?goods_id=1&sn=1" />
+</#if>
+<!-- 标签 -->
+<#if api=="deleteTag" >
+  <#assign  apiurl="/api/b2b2c/tag!delete.do?tage_id=1" />
+</#if>
+<#if api=="deleteRelTag" >
+  <#assign  apiurl="/api/b2b2c/tag!deleteRel.do?tagId=1& reg_id=1" />
+</#if>
+<#if api=="saveRelTag" >
+  <#assign  apiurl="/api/b2b2c/tag!saveRel.do?tagId=1& reg_id=1" />
+</#if>
+
+<#if api=="saveSort" >
+  <#assign  apiurl="/api/b2b2c/tag!saveSort.do?tagId=1& reg_id=1" />
+</#if>
+<!-- 收藏 -->
+<#if api=="addStoreCollect" >
+  <#assign  apiurl="/api/b2b2c/storeCollect!addCollect.do?store_id=1" />
+</#if>
+<#if api=="delStoreCollect" >
+  <#assign  apiurl="/api/b2b2c/storeCollect!del.do?store_id=1& celloct_id=1" />
+</#if>
+<!-- 会员地址 -->
+<#if api=="defultAddr" >
+  <#assign  apiurl="/api/b2b2c/memberAddress!setDefAddress.do?addrid=1" />
+</#if>
+<!--发表评论-->
+<#if api=="add" >
+  <#assign  apiurl="/api/shop/commentApi!add.do?goods_id=1&commenttype=1&content=测试" />
+</#if>
+
+<!-- 订单 -->
+<#if api=="create" >
+  <#assign  apiurl="/api/store/storeOrder!create.do" />
+</#if>
+
+<#if api=="changeArgsType" >
+  <#assign  apiurl="/api/store/storeOrder!changeArgsType.do?store_id=1& regionid=1& regionid=1& type_id=1& bonus_id=1" />
+</#if>
+
+<#if api=="changeAddress" >
+  <#assign  apiurl="/api/store/storeOrder!changeAddress.do?address_id=1" />
+</#if>
+
+<#if api=="orderconfirm" >
+  <#assign  apiurl="/api/store/storeOrder!confirm.do?orderId=1" />
+</#if>
+
+<#if api=="orderPay" >
+  <#assign  apiurl="/api/store/storeOrder!pay.do?orderId=1& payment_id=1& payMoney=100" />
+</#if>
+
+<#if api=="ship" >
+  <#assign  apiurl="/api/store/storeOrder!ship.do?orderId=1& logi_id=1& logi_name=1" />
+</#if>
+<#if api=="saveShipPrice" >
+  <#assign  apiurl="/api/store/storeOrder!saveShipPrice.do?orderId=1& shipmoney=1" />
+</#if>
+<#if api=="savePrice" >
+  <#assign  apiurl="/api/store/storeOrder!savePrice.do?orderId=1& payMoney=1" />
+</#if>
+
+<#if api=="saveConsigee" >
+  <#assign  apiurl="/api/store/storeOrder!saveConsigee.do?ship_name=1 &ship_mobile=15888888888 &ship_zip=065201" />
+</#if>
+<#if api=="shipScript" >
+  <#assign  apiurl="/api/store/storeOrderPrint!shipScript.do?order_id=1" />
+</#if>
+
+<#if api=="cancel" >
+  <#assign  apiurl="/api/shop/order!cancel.do?sn=20131024055602" />
+</#if>
+<#if api=="rogConfirm" >
+  <#assign  apiurl="/api/shop/order!rogConfirm.do?orderId=10001" />
+</#if>
+<!-- 退货 -->
+<#if api=="saveSellBack" >
+  <#assign  apiurl="/api/store/storeSellBack!save.do?orderId=1" />
+</#if>
+<#if api=="saveAuth" >
+  <#assign  apiurl="/api/store/storeSellBack!saveAuth.do?status=1 " />
+</#if>
+<!-- 店铺支付 -->
+<#if api=="excute" >
+  <#assign  apiurl="/api/b2b2c/storePaymentApi!execute.do?orderid=1" />
+</#if>
+<!-- 店铺管理 -->
+<#if api=="checkStoreName" >
+  <#assign  apiurl="/api/b2b2c/storeApi!checkStoreName.do?storeName=1" />
+</#if>
+<#if api=="checkIdNumber" >
+  <#assign  apiurl="/api/b2b2c/storeApi!checkIdNumber.do?id_number=131082198808280511" />
+</#if>
+<#if api=="editStoreLogo" >
+  <#assign  apiurl="/api/b2b2c/storeApi!editStoreLogo.do?logo=logo" />
+</#if>
+<#if api=="store_auth" >
+  <#assign  apiurl="/api/b2b2c/storeApi!store_auth.do?store_id=1&fsid_img=1&fslicense_img=1&store_auth=1&name_auth=1" />
+</#if>
+<!-- 店铺地址 -->
+<#if api=="addDly" >
+  <#assign  apiurl="/api/b2b2c/storeDlyCenter!add.do" />
+</#if>
+<#if api=="editDly" >
+  <#assign  apiurl="/api/b2b2c/storeDlyCenter!edit.do?dly_center_id=1" />
+</#if>
+<#if api=="deleteDly" >
+  <#assign  apiurl="/api/b2b2c/storeDlyCenter!delete.do?dly_center_id=1" />
+</#if>
+<#if api=="siteDefault" >
+  <#assign  apiurl="/api/b2b2c/storeDlyCenter!siteDefault.do?dly_center_id=1" />
+</#if>
+<#if api=="addDlyType" >
+  <#assign  apiurl="/api/b2b2c/dlyType!add.do?dlyname=1000&tplType=1" />
+</#if>
+<#if api=="updateDlyType" >
+  <#assign  apiurl="/api/b2b2c/dlyType!update.do?dlyname=1000&tplType=1&tempid=1" />
+</#if>
+
+<#if api=="addLogi" >
+  <#assign  apiurl="/api/b2b2c/storeLogiCompany!saveReal.do?logi_id=1" />
+</#if>
+<#if api=="delLogi" >
+  <#assign  apiurl="/api/b2b2c/storeLogiCompany!delReal.do?logi_id=1" />
+</#if>
+<!-- 优惠券 -->
+<#if api=="receiveBonus" >
+  <#assign  apiurl="/api/b2b2c/promotion!receiveBonus.do?store_id=1&type_id=1" />
+</#if>
+<#if api=="deleteBonus" >
+  <#assign  apiurl="/api/b2b2c/promotion!deleteBonus.do?type_id=1" />
+</#if>
+<!-- 幻灯片 -->
+<#if api=="editStoreSilde" >
+  <#assign  apiurl="/api/b2b2c/storeSilde!editStoreSilde.do?silde_id=1&store_fs=1&silde_url=1" />
+</#if>
+
+<!-- 店铺运费模板 -->
+<#if api=="deltransport" >
+  <#assign  apiurl="/api/b2b2c/transport!del.do?tempid=1" />
+</#if>
+<#if api=="setDefTemp" >
+  <#assign  apiurl="/api/b2b2c/transport!setDefTemp.do?tempid=1" />
+</#if>
+<!-- 店铺导航表 -->
+<#if api=="addNavigation" >
+  <#assign  apiurl="/api/b2b2c/navigation!add.do?name=1&disable=1&sorts=1&contents=1&nav_url=1&target=1" />
+</#if>
+<#if api=="getNavcation" >
+  <#assign  apiurl="/api/b2b2c/navigation!getNavcation.do" />
+</#if>
+<#if api=="editNavigation" >
+  <#assign  apiurl="/api/b2b2c/navigation!edit.do?name=1&disable=1&sorts=1&contents=1&nav_url=1&target=1&nav_id=1" />
+</#if>
+<#if api=="delNavigation" >
+  <#assign  apiurl="/api/b2b2c/navigation!delete.do?nav_id=1" />
+</#if>
+<!--会员操作-->
+<#if api=="login" >
+  <#assign  apiurl="/api/shop/member!login.do?username=18611138651&password=123456" />
+</#if>
+<#if api=="logout" >
+  <#assign  apiurl="/api/shop/member!logout.do" />
+</#if>
+<#if api=="changePassword" >
+  <#assign  apiurl="/api/shop/member!changepassword.do?oldpassword=123456&newpassword=1234567" />
+</#if>
+<#if api=="password" >
+  <#assign  apiurl="/api/shop/member!password.do?oldpassword=123456" />
+</#if>
+<#if api=="member_search" >
+  <#assign  apiurl="/api/shop/member!search.do" />
+</#if>
+<#if api=="member_search" >
+  <#assign  apiurl="/api/shop/member!saveInfo.do" />
+</#if>
+<#if api=="returnAdd" >
+  <#assign  apiurl="/api/shop/returnorder!returnAdd.do?type=1&ordersn=20140220102237&goodsns=0018914288" />
+</#if>
+<!--会员操作结束-->
+
+
+<!-- 缺货登记 -->
+
+<#if api=="gnotifyAdd" >
+  <#assign  apiurl="/api/shop/gnotify!add.do?goodsid=30" />
+</#if>
+
+<#if api=="gnotifyDel" >
+  <#assign  apiurl="/api/shop/gnotify!gnotifyDel.do?gnotify_id=1" />
+</#if>
+
+
+</#if>
+<div id="function">
+	<input type="button" value="登录" name="button" id="login"></input>
+	<input type="button" value="注销登录" id="logout"></input>	
+</div>
+<div id="api">
+<h1>API地址：</h1>
+<input type="text" id="url" style="width:600px" value="${apiurl!''}">
+<input type="button" value="提交" name="button"  id="prevBtn" class="prevbtn">
+</div>
+ 
+
+<div id="show">
+<h1>输出结果</h1>
+<textarea  id="frm" >
+</textarea>
+</div>
+<#include '/docs/fooder.html' />
+
+<!--会员登录-->
+	<script>
+		$(function() {
+			$("#prevBtn").click(function(){
+				 var apiurl=$("#url").val();
+				$.ajax({
+					url:"${ctx}"+apiurl,
+					dataType:"html",
+					success:function(html){
+						 $("#frm").val(html)
+					},
+					error:function(){
+						alert("api地址错误，请检查");
+					}
+					
+				});
+			});
+			
+			$("#logout").click(function() {
+				var apiurl = "/api/shop/member!logout.do";
+				$.ajax({
+					url : "${ctx}" + apiurl,
+					dataType : "json",
+					success : function(bb) {
+						if (bb.result == 1) {
+							alert("恭喜注销成功")
+						} else {
+							alert("已经注销过了错误")
+						}
+					},
+					error : function() {
+						alert("api地址错误，请检查");
+					}
+
+				});
+			});
+			
+			$("#login").click(function(){
+				$(".diadiv").dialog({
+					title :'登录',
+					width : 400,
+					top:100,
+					closed : false,
+					href:"../the_login.html",
+					buttons : [ {
+						text : '保存',
+						handler : function() {
+							submitForm();
+						}
+					}]
+				});
+			})
+		})
+		
+		function submitForm(){
+			$("#loginForm").ajaxSubmit({
+				url:"${ctx}/api/shop/member!login.do?ajax=yes",
+				type:"post",
+				dataType:"json",
+				success:function(result){
+					 alert(result.message);
+				},
+				error:function(e){
+					alert("操作失败！");
+				}
+			});
+		}
+	</script>
+
+</body>
+</html>

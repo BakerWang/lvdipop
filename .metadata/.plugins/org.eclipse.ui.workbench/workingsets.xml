@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workingSetManager>
+<workingSet editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1482138301549_3" label="pop_b2b2c" name="pop_b2b2c">
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/b2b2c" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Servers" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/b2b2c-core" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/b2c" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/shop-core" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/core" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/cms-core" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/javashop" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/service-goods" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/solr" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/customized" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/b2b2c-mobile-api" type="4"/>
+</workingSet>
+<workingSet editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1487216178717_5" label="njucrm" name="njucrm"/>
+<workingSet aggregate="true" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1479268372463_0" label="Window Working Set" name="Aggregate for window 1479268372463"/>
+</workingSetManager>

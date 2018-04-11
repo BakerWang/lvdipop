@@ -1,0 +1,97 @@
+<#include '/admin/header.html' >
+<div class="main" style="background-color: white;" >
+	<div class="easyui-panel" style="border-style: none;">
+		<div style="padding: 10px 0 10px 20px">
+			<form id="append-form" method="post" class="validate">
+				<table>
+					<tr>
+						<td>请填写客户消费金额：</td>
+						<td>
+							<input class="input_text easyui-validatebox" type="text" name="price" data-options="required:true" style="width: 150px;""/>
+						</td>
+						<td><span class="error-msg1" style="color: red;"></span></td>
+					</tr>
+					<tr>
+						<td>请填写优惠券识别码：</td>
+						<td>
+							<input class="input_text easyui-validatebox" type="text" name="coupons_code" data-options="required:true" style="width: 150px;""/>
+						</td>
+						<td><span class="error-msg2" style="color: red;"></span></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>
+							<a href="javascript:void(0)" class="easyui-linkbutton" id="saveBtn">确认使用</a>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$("#saveBtn").click(function(){
+		var price = $("input[name='price']").val();
+		var code = $("input[name='coupons_code']").val();
+		
+		if (price == "") {
+			$(".error-msg1").html("请填写客户消费金额！");
+			return false;
+		} else {
+			if (!checkPrice(price)) {
+				$(".error-msg1").html("输入的消费金额格式不正确！");
+				return false;
+			} else {
+				$(".error-msg1").html("");
+			}
+		}
+		
+		$.ajax({
+            url : "${ctx}/b2b2c/admin/self-coupons/check-code.do?coupons_code="+ code + "&price=" + price,
+            cache : false,
+            dataType: "json",
+            success : function(data) {
+                if(data.result==1){
+                	$(".error-msg1").html("");
+                	$(".error-msg2").html("");
+                	
+                	if (!confirm(data.message)) {	
+                		return false;
+                	}
+                	
+                    $.ajax({
+                        url : "${ctx}/b2b2c/admin/self-coupons/use-coupons.do?coupons_code="+ code,
+                        cache : false,
+                        dataType: "json",
+                        success : function(data) {
+                            if(data.result==1){
+                            	$("input[name='price']").val("");
+                            	$("input[name='coupons_code']").val("");
+                                $.Loading.successMessage(data.message, "3000");
+                                location.reload();
+                            }else{
+                                $.Loading.errorMessage(data.message, "3000");
+                            }
+                        },
+                        error : function() {
+                        	$.Loading.errorMessage("出现错误，请重试！");
+                        }
+                    });
+                	
+                }else{
+                    $(".error-msg2").html(data.message);
+                }
+            },
+            error : function() {
+            	$.Loading.errorMessage("出现错误，请重试！");
+            }
+        });
+	});
+});
+
+function checkPrice(price){
+	return (/^(([1-9]\d*)|\d)(\.\d{1,2})?$/).test(price.toString());
+}
+</script>
+<#include '/admin/footer.html' >

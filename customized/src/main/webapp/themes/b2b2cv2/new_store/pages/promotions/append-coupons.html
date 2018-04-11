@@ -1,0 +1,16 @@
+<div class="store_bonus">
+	<form id="store_coupons_form" class="store_coupon-form">
+		<div class="coupons_stock">
+			<span>请填写追加发放的优惠券数量：</span>
+			<input type="text" name="coupons_stock" class="form-control coupons-num" id="coupons-stock" maxlength="9"
+				onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"/>
+		</div>
+	</form>
+</div>
+<style>
+.coupons-num {
+	height: 30px;
+	width: 100px;
+	display: inline-block;
+}
+</style>

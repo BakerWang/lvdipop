@@ -1,0 +1,171 @@
+<#include '/admin/header.html' >
+
+<div class="main">
+	<form id="sensitivewordsform" method="post">
+		<div class='buttonArea'>
+			<div style="float:left">
+				<a href="javascript:void(0)" class="button blueButton"  onclick="append()">添加</a>
+				<a href="javascript:void(0)" class="button"  onclick="del()">删除</a>
+			</div>
+			<span style="float: right;"> 
+				<span id="simpleSearch">
+					<a href="javascript:void(0)" class="button b_fr" 
+					 data-options="plain:true" onclick="searchSensitive()">搜索</a>
+					<input id="searchKeyWord" class="input_text b_fr mr5" type="text" value="" size="30"
+					placeholder="请输入模糊关键字" name="searchKeyWord"> 
+				</span>
+			</span>
+		</div>
+		<div class="clear height10"></div>
+		<div class="shadowBoxWhite tableDiv">
+			<table class="easyui-datagrid" 
+				
+				data-options="url:'list-json.do',pageList: [5,10,15,20],pageSize:${pageSize},fitColumns:'true'"
+				pagination="true" width="width" id="sensitivewordsdata">
+				<thead>
+					<tr>
+						<th data-options="field:'sensitivewords_id',checkbox:true,width:100"></th>
+						<th data-options="field:'sensitivewords_name',align:'center',width:200">敏感词</th>
+						<th data-options="field:'action',width:25" formatter="formatOperation">操作</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</form>
+	<div id="addSensitivewords" style="display: none;"></div>
+</div>
+
+<script type="text/javascript">
+	
+	var flag=false;
+	
+		function append(sensitivewordsId) {
+			var map = {}; // Map map = new HashMap();
+			if (!sensitivewordsId) {
+				map["href"] = "${ctx}/b2b2c/admin/sensitivewords/add.do";
+				map["formId"] = "#sensitivewordsForm";
+				map["url"] = "${ctx}/b2b2c/admin/sensitivewords/save.do";
+				map["title"] = "添加敏感词";
+			} else {
+				map["href"] = "${ctx}/b2b2c/admin/sensitivewords/edit.do?sensitiveWords_id=" + sensitivewordsId;
+				map["formId"] = "#sensitivewordsForm";
+				map["url"] = "${ctx}/b2b2c/admin/sensitivewords/save-edit.do";
+				map["title"] = "修改敏感词";
+			}
+			map["divDialog"] = "#addSensitivewords";
+			map["gridreload"] = "#sensitivewordsdata";
+
+			addDialog(map);
+		}
+		function addDialog(map) {
+			$(map["divDialog"]).show();
+			$(map["divDialog"]).dialog({
+				title : map["title"],
+				width : 800,
+				top:10,
+				height : 200,
+				closed : false,
+				cache : false,
+				href : map["href"],
+				modal : true,
+				onLoad : function() {
+					flag = true;
+				},
+				buttons : [ {
+					text : '保存',
+					iconCls : 'icon-ok',
+					handler : function() {
+						 var savebtn = $(this);
+		　　				 var disabled=savebtn.hasClass("l-btn-disabled");
+		　　				 if(!disabled){
+							 submitForm(map,savebtn);
+			　　			 }
+					}
+				}, {
+					text : '取消',
+					handler : function() {
+						$(map["divDialog"]).dialog('close');
+						clearForm(map);
+					}
+				} ]
+			});
+		}
+		function submitForm(map,savebtn) {
+			var formflag = $(map["formId"]).form('validate');
+			if (formflag) {
+				$.Loading.show("正在保存请稍候...");
+　				savebtn.linkbutton("disable");
+				var options = {
+					url : map["url"],
+					type : "POST",
+					dataType : 'json',
+					success : function(result) {
+						if (result.result == 1) {
+							$.Loading.success(result.message);
+							$(map["divDialog"]).dialog('close');
+							$(map["gridreload"]).datagrid('reload');
+						}
+						if (result.result == 0) {
+							$.Loading.error(result.message);
+						}
+						savebtn.linkbutton("enable");
+					},
+					error : function(e) {
+						$.Loading.error("出现错误 ，请重试");
+						savebtn.linkbutton("enable");
+					}
+				};
+				$(map["formId"]).ajaxSubmit(options);
+			}
+		}
+
+		//清空
+		function clearForm(map) {
+			$(map["formId"]).form('clear');
+		}
+
+		//操作
+		function formatOperation(value, row, index) {
+			var val = "<a class='edit' title='修改' href='javascript:void(0);' onclick='append("
+					+ row.sensitivewords_id + ")'></a>";
+			return val;
+		}
+
+		//删除
+		function del() {
+			var rows = $('#sensitivewordsdata').datagrid("getSelections");
+			if (rows.length < 1) {
+				$.Loading.error('请选择要删除的敏感词');
+				return;
+			}
+			if (!confirm("确认要将这些敏感词删除吗？")) {
+				return;
+			}
+			var options = {
+				url : "${ctx}/b2b2c/admin/sensitivewords/delete.do?ajax=yes",
+				type : "POST",
+				dataType : 'json',
+				success : function(result) {
+					if (result.result == 1) {
+						$.Loading.success('删除成功');
+						$('#sensitivewordsdata').datagrid('reload');
+					}
+					if (result.result == 0) {
+						$.Loading.error(result.message);
+					}
+				},
+				error : function(e) {
+					$.Loading.error("出现错误，请重试");
+				}
+			};
+			$('#sensitivewordsform').ajaxSubmit(options);
+		}
+		
+		function searchSensitive(){
+			var keyword = $("#searchKeyWord").val();
+			$("#sensitivewordsdata").datagrid('load', {
+				keyword:keyword
+		    });
+		}
+	</script>
+<#include '/admin/footer.html' >

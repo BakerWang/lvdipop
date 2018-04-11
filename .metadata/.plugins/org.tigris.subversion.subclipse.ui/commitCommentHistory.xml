@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CommitComments>	<CommitComment>新增apache poi execel operate 依赖</CommitComment>
+	<CommitComment>更改贝克邦提供的七牛服务</CommitComment>
+	<CommitComment>新增被禁店铺页面访问</CommitComment>
+	<CommitComment>隐藏系统设置增值组件页面显示</CommitComment>
+	<CommitComment>删除废代码
+</CommitComment>
+	<CommitComment>去掉列表只有一个字段点击详情按钮和时间页面</CommitComment>
+	<CommitComment>FIXME code</CommitComment>
+	<CommitComment>提交打包跳过测试插件
+</CommitComment>
+	<CommitComment>去掉本地util包</CommitComment>
+	<CommitComment>GSON 工具类</CommitComment>
+</CommitComments>

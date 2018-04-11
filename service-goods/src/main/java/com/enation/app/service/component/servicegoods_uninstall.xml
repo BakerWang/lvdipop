@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dbsolution>
+	<!-- <action>
+		<command>alter</command>
+		<table>cart</table>
+		<field type="drop">
+			<name>goods_type</name>
+		</field>
+	</action> -->
+	<action>
+		<command>drop</command>
+		<table>goods_servicegoods</table>
+	</action>
+	<action>
+		<command>drop</command>
+		<table>booking</table>
+	</action>
+</dbsolution>

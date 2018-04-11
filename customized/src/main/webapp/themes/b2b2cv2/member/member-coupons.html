@@ -1,0 +1,85 @@
+<#assign title="我的优惠券" /> 
+<#include 'member_header.html' />
+
+<#-- 创建获取会员优惠券列表标签 -->
+<#assign memberCouponsListTag = newTag("memberCouponsListTag")>
+<#-- 调用获取会员优惠券列表标签 -->
+<#assign memberCouponsList = memberCouponsListTag()> 
+<#assign couponsList = memberCouponsList.couponsList>
+<div class="member_center">
+	<div class="favorite_title">
+		<ul>
+			<li class="selected"><a href="member-coupons.html"><span>我的优惠券</span></a></li>
+		</ul>
+	</div>
+	<!-- 优惠券明细 -->
+	<div class="point_list">
+		<#if couponsList?size gt 0 >
+			<table style="width: 100%" cellspacing="0" cellpadding="0">
+				<tr>
+					<th class="title">识别码</th>
+					<th class="date">红包类型</th>
+					<th class="date">面额/折扣</th>
+					<th class="date">最小订单金额</th>
+					<th class="date">有效期限</th>
+					<th class="date">使用地区</th>
+					<th class="date">所属店铺</th>
+					<th class="date">状态</th>
+					<th class="date">使用状态</th>
+				</tr>
+				<#list couponsList as coupons>
+					<tr>
+						<td>${coupons.mcoup_code!''}</td>
+						<td>
+							<#if coupons.mcoup_type == 0>
+								满减券
+							</#if>
+							<#if coupons.mcoup_type == 1>
+								折扣券
+							</#if>
+							<#if coupons.mcoup_type == 2>
+								现金券
+							</#if>
+						</td>
+						<td>
+							<#if coupons.mcoup_type == 0 || coupons.mcoup_type == 2>
+								${coupons.mcoup_money?string.currency}
+							</#if>
+							<#if coupons.mcoup_type == 1>
+								${coupons.mcoup_discount}%
+							</#if>
+						</td>
+						<td>
+							<#if coupons.mcoup_type != 2>
+								${coupons.min_order_money?string.currency}
+							<#else>
+								无限制
+							</#if>
+						</td>
+						<td>
+							<@dateformat time="${coupons.mcoup_start_date?c}" pattern="yyyy-MM-dd"/>
+							至
+							<br>
+							<@dateformat time="${coupons.mcoup_end_date?c}" pattern="yyyy-MM-dd"/>
+						</td>
+						<td>${coupons.mcoup_province_name!''}</td>
+						<td>${coupons.store_name!''}</td> 
+						<td>${coupons.state!''}</td>
+						<td>
+							<#if coupons.is_used == 0>
+								未使用
+							</#if>
+							<#if coupons.is_used == 1>
+								已使用
+							</#if>
+						</td>
+					</tr>
+				</#list>
+			</table>
+		<#else>
+			<div class="empty">您暂时没有优惠券记录</div>
+		</#if>
+	</div>
+</div>
+</div>
+<#include '../common/footer.html'/>

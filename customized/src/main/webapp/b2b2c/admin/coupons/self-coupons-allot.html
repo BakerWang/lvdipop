@@ -1,0 +1,299 @@
+<#include '/admin/header.html' >
+<#assign regionSelectDirective="com.enation.app.shop.front.tag.goods.other.regions.RegionSelectDirective"?new()>
+<div class="main" style="background-color: white;" >
+	<div class="shadowBoxWhite  whiteBox">
+		<div class="member-lv-div" style="border-bottom: 1px solid #e0e0e0; margin-top: 30px;">
+       		<div>
+       			<span style="font-size: large; font-weight: bolder;">按用户等级发放优惠券：</span>
+       		</div>
+       		<div style="margin:25px 0px 50px 100px;">
+       			<span>请选择用户等级：</span>
+        		<select name="lvid" class="lvid" style="width: 150px;height: 32px;">
+        			<option value="0">请选择</option>
+        			<#if memberLvList??>
+        				<#list memberLvList as lv>
+        					<option value="${lv.lv_id}">${lv.name}</option>
+        				</#list>
+        			</#if>
+        		</select>
+        		<a href="javascript:void(0);"  class="easyui-linkbutton" id="send-by-lv" coupons_id="${coupons_id!''}" style="margin-left: 15px;">确定发放</a>
+        		<span class="msg-error" style="color: red; margin-left: 15px;"></span>
+       		</div>
+       	</div>
+       	<div class="member-regions-div" style="border-bottom: 1px solid #e0e0e0; margin-top: 30px;">
+       		<div>
+       			<span style="font-size: large; font-weight: bolder;">按用户所在地区发放优惠券：</span>
+       		</div>
+       		<div style="margin:25px 0 50px 100px;">
+       			<span>请选择用户地区：</span>
+        		<@regionSelectDirective  province_name='store_province' city_name='store_city' region_name='store_region'/>
+        		<a href="javascript:void(0);"  class="easyui-linkbutton" id="send-by-regions" coupons_id="${coupons_id!''}" style="margin-left: 15px;">确定发放</a>
+        		<span class="msg-error1" style="color: red; margin-left: 15px;"></span>
+       		</div>
+       	</div>
+       	<div class="member-name-div" style="margin-top: 30px;">
+       		<div>
+       			<span style="font-size: large; font-weight: bolder;">按用户发放优惠券：</span>
+       		</div>
+       		<div style="margin:25px 0 50px 100px;">
+       			<div>
+					关键字：<input type="text" name="keyword" class="input_text easyui-validatebox" id="keyword" data-options="required:true" style="width: 150px; height:22px; display: inline-block;">
+						 <a href="javascript:void(0);" class="easyui-linkbutton" id="searchBtn" style="margin-left: 15px;">搜索</a>
+						 <span class="msg-error2" style="color: red; margin-left: 15px;"></span>
+       			</div>
+       			<div style="margin-top: 20px;">
+       				<form method="post" id="send-member-form" class="validate">
+        				<div style="display: inline-block;">
+        					<select id="member-list" size="15" style="width: 320px;height: 300px;" multiple="multiple"></select>
+        				</div>
+        				<div style="display: inline-block;">
+        					<a href="javascript:void(0);" class="easyui-linkbutton" id="add-member-btn" style="margin-left: 15px;margin-right: 15px;">添加</a>
+        					<br><br>
+        					<a href="javascript:void(0);" class="easyui-linkbutton" id="remove-member-btn" style="margin-left: 15px;margin-right: 15px;">删除</a>
+        					<br><br><br><br><br><br><br>
+        				</div>
+        				<div style="display: inline-block;">
+        					<select id="copy-member-list" name="memberids" size="15" style="width: 320px;height: 300px;" multiple="multiple"></select>
+        				</div>
+        				<div style="display: inline-block;">
+        					<a href="javascript:void(0);"  class="easyui-linkbutton" id="send-by-member" coupons_id="${coupons_id!''}" style="margin-left: 15px;">确定发放</a>
+        					<span class="msg-error3" style="color: red; margin-left: 15px;"></span>
+        					<br><br><br><br><br><br><br><br>
+        				</div>
+       				</form>
+       			</div>
+       		</div>
+       	</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	//按用户等级发放优惠券
+	$("#send-by-lv").click(function(){
+		var lvid = $(".lvid").val();
+		var couponsid = $(this).attr("coupons_id");
+		
+		//如果没有选择会员等级
+		if (lvid == 0) {
+			$(".msg-error").html("请选择用户等级！");
+			return false;
+		} else {
+			$(".msg-error").html("");
+		}
+		
+		$.ajax({
+            url : "${ctx}/b2b2c/admin/self-coupons/check-member-lv.do?lv_id="+ lvid + "&coupons_id=" + couponsid,
+            cache : false,
+            dataType: "json",
+            success : function(data) {
+                if(data.result==1){
+                	$(".msg-error").html("");
+                	
+                	if (!confirm(data.message)) {	
+                		return false;
+                	}
+                	
+                	$.ajax({
+                        url : "${ctx}/b2b2c/admin/self-coupons/send-member-lv.do?lv_id="+ lvid + "&coupons_id=" + couponsid,
+                        cache : false,
+                        dataType: "json",
+                        success : function(res) {
+                            if(res.result==1){
+                                $.Loading.successMessage(res.message, "3000");
+                                location.reload();
+                            }else{
+                                $.Loading.errorMessage(res.message, "3000");
+                            }
+                        },
+                        error : function() {
+                        	$.Loading.errorMessage("出现错误，请重试！");
+                        }
+                    });
+                	
+                }else{
+                    $(".msg-error").html(data.message);
+                }
+            },
+            error : function() {
+            	$.Loading.errorMessage("出现错误，请重试！");
+            }
+        });
+	});
+	
+	//按用户所在地区发放优惠券
+	$("#send-by-regions").click(function(){
+		var province_id = $("#store_province_id").val();
+		var city_id = $("#store_city_id").val();
+		var region_id = $("#store_region_id").val();
+		var couponsid = $(this).attr("coupons_id");
+		
+		//如果没有选择会员等级
+		if (province_id == 0 && city_id == 0 && region_id == 0) {
+			$(".msg-error1").html("请选择用户地区！");
+			return false;
+		} else {
+			$(".msg-error1").html("");
+		}
+		
+		$.ajax({
+            url : "${ctx}/b2b2c/admin/self-coupons/check-member-region.do?coupons_id="+ couponsid + "&province_id=" + province_id + "&city_id=" + city_id + "&region_id=" + region_id,
+            cache : false,
+            dataType: "json",
+            success : function(data) {
+                if(data.result==1){
+                	$(".msg-error1").html("");
+                	
+                	if (!confirm(data.message)) {	
+                		return false;
+                	}
+                	
+                	$.ajax({
+                        url : "${ctx}/b2b2c/admin/self-coupons/send-member-region.do?coupons_id="+ couponsid + "&province_id=" + province_id + "&city_id=" + city_id + "&region_id=" + region_id,
+                        cache : false,
+                        dataType: "json",
+                        success : function(res) {
+                            if(res.result==1){
+                            	$("#store_province_id").val("0");
+                        		$("#store_city_id").val("0");
+                        		$("#store_region_id").val("0");
+                                $.Loading.successMessage(res.message, "3000");
+                                location.reload();
+                            }else{
+                                $.Loading.errorMessage(res.message, "3000");
+                            }
+                        },
+                        error : function() {
+                        	$.Loading.errorMessage("出现错误，请重试！");
+                        }
+                    });
+                	
+                }else{
+                    $(".msg-error1").html(data.message);
+                }
+            },
+            error : function() {
+            	$.Loading.errorMessage("出现错误，请重试！");
+            }
+        });
+	});
+	
+	//根据关键字搜索会员
+	$("#searchBtn").click(function(){
+		var keyword = $.trim($("input[name='keyword']").val());
+		if (keyword == "") {
+			$(".msg-error2").html("请输入关键字！");
+			return false;
+		}
+		
+		$.ajax({
+            url : "${ctx}/b2b2c/admin/self-coupons/search-member.do?keyword="+ keyword,
+            cache : false,
+            dataType: "json",
+            success : function(data) {
+                if(data.result==1){
+                	$(".msg-error2").html("");
+                	var memberList = data.data;
+					var memberListSel = $("#member-list");
+					memberListSel.empty();
+					
+					for (i in memberList) {
+						var member = memberList[i];
+						if(member != null){
+							memberListSel.append("<option value='"+member.member_id+"'>"
+										+ member.uname
+										+ "["
+										+ member.name
+										+ "]</option>");
+						}
+					}
+                }else{
+                    $(".msg-error2").html(data.message);
+                }
+            },
+            error : function() {
+            	$.Loading.errorMessage("出现错误，请重试！");
+            }
+        });
+	});
+	
+	//将搜索到的会员添加到用户发放列表中
+	$("#add-member-btn").click(function() {
+		$("#member-list option:selected").each(function(i, v) {
+			var $this = $(this);
+			var memberid = $(this).val();
+			var exist = false;
+			$("#copy-member-list option").each(function() {
+				if (memberid == $(this).val()) {
+					exist = true;
+					return;
+				}
+			});
+
+			if (!exist) {
+				$(this).clone().appendTo($("#copy-member-list"))
+			}
+
+		});
+	});
+	
+	//将用户从发放列表中删除
+	$("#remove-member-btn").click(function() {
+		$("#copy-member-list option:selected").each(function(i, v) {
+			$(this).remove();
+		});
+	});
+	
+	//按会员名称发放优惠券
+	$("#send-by-member").click(function() {
+		var couponsid = $(this).attr("coupons_id");
+		
+		//判断是否添加了领取优惠券的会员
+		if ($("#copy-member-list option").length == 0) {
+			$(".msg-error3").html("请添加会员到发放列表！");
+			return false;
+		} else {
+			$(".msg-error3").html("");
+		}
+		
+		$("#copy-member-list option").attr("selected", true);
+
+		$("#send-member-form").ajaxSubmit({
+			url : "${ctx}/b2b2c/admin/self-coupons/check-member-uname.do?coupons_id=" + couponsid,
+			dataType : "json",
+			success : function(data) {
+				if(data.result==1){
+                	$(".msg-error3").html("");
+                	
+                	if (!confirm(data.message)) {	
+                		return false;
+                	}
+                	
+                	$("#send-member-form").ajaxSubmit({
+    					url : "${ctx}/b2b2c/admin/self-coupons/send-member-uname.do?coupons_id=" + couponsid,
+    					dataType : "json",
+    					success : function(res) {
+    						if(res.result==1){
+                                $.Loading.successMessage(res.message, "3000");
+                                location.reload();
+                            }else{
+                                $.Loading.errorMessage(res.message, "3000");
+                            }
+    					},
+    					error : function() {
+    						$.Loading.errorMessage("出现错误，请重试！");
+    					}
+    				});
+                	
+                }else{
+                    $(".msg-error3").html(data.message);
+                }
+			},
+			error : function() {
+				$.Loading.errorMessage("红包发放失败");
+			}
+		});
+	});
+	
+});
+</script>
+<#include '/admin/footer.html' >

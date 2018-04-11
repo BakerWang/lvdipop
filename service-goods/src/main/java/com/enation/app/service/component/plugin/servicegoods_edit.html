@@ -1,0 +1,38 @@
+<#-- 创建商品类型标签 -->
+<#assign goodsTypeListTag=newTag("goodsTypeListTag")>
+<#assign goodsTypeList=goodsTypeListTag()>
+<table class="form-table" width="100%">
+
+	<tr>
+		<th>商品类型：</th>
+		<td id="goods_type_td" style="text-align: left;"><select
+			 name="goods_type" id="select_goods_type"
+			style="width: 200px; height: auto;">
+				<#list goodsTypeList as goodsType>
+                   <option <#if goods.goods_type == goodsType.key> selected="selected"</#if> value="${goodsType.key}">${goodsType.value}</option>
+                </#list>
+					
+		</select></td>
+	</tr>
+	<tr>
+		<td colspan="2" style="color: red;font-size: 16px;">
+			<span id="msg"></span>
+		</td>
+	</tr>
+</table>
+
+<script>
+	var ue = UE.getEditor('editor', {
+		zIndex : 0,
+	});
+	$(function(){
+		$('#select_goods_type').change(function(e){
+			if($('#select_goods_type').val() == 2) {
+				$("#msg").html("预约商品，规格信息无效！<br/>");
+			}else{
+				$("#msg").html("");
+			}
+		})
+	});
+</script>
+

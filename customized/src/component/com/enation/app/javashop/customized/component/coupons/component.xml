@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="新版优惠券组件"  version="1.0" javashop_version="3.0.0" author="javashop">
+ 
+	<plugins>
+		<plugin name="优惠券订单打折插件" id="couponsOrderDiscountPlugin"> 
+			<bundle id="orderPluginBundle"></bundle>
+		</plugin>
+		<plugin name="创建订单添加订单优惠券插件" id="orderAfterAddCouponsPlugin"> 
+			<bundle id="orderPluginBundle"></bundle>
+		</plugin>
+		<plugin name="订单确认付款发放优惠券插件" id="orderPaySendCouponsPlugin"> 
+			<bundle id="orderPluginBundle"></bundle>
+		</plugin>
+	</plugins>
+	
+</component>

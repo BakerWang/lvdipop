@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 2 elements from project &apos;nju_crm&apos;&#x0D;&#x0A;- Original project: &apos;nju_crm&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     spring-boot.log.1&#x0D;&#x0A;     spring-boot.log.2" description="Delete elements" element1="logs/spring-boot.log.1" element2="logs/spring-boot.log.2" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="2" stamp="1482974317089" subPackages="false" version="1.0"/>
+</session>

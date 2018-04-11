@@ -1,0 +1,448 @@
+/**
+ * 
+ */
+package com.bizdata.management.controller;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.bizdata.commons.utils.JsonMessageUtil;
+import com.bizdata.commons.utils.JsonResultUtils;
+import com.bizdata.commons.utils.Utils;
+import com.bizdata.framework.exception.PageConditionException;
+import com.bizdata.framework.exception.SearchConditionException;
+import com.bizdata.framework.exception.SortConditionException;
+import com.bizdata.gift.domain.ReceiveDepartment;
+import com.bizdata.management.domain.Activity;
+import com.bizdata.management.domain.ActivityLabel;
+import com.bizdata.management.domain.Activity_File;
+import com.bizdata.management.domain.Activity_Img;
+import com.bizdata.management.service.ActivityLabelService;
+import com.bizdata.management.service.ActivityService;
+import com.bizdata.management.service.Activity_FileService;
+import com.bizdata.management.service.Activity_ImgService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+/**   
+ * 
+ * @author caojie 
+ * @date 2016年9月14日下午2:17:16
+ * 
+ */
+@Controller
+@RequestMapping(value="/admin/activity")
+@ConfigurationProperties(prefix = "qiniu")
+public class ActivityController {
+	@Autowired
+	private ActivityService activityService;
+	
+	@Autowired
+	private ActivityLabelService activityLabelService;
+	
+	@Autowired
+	private Activity_FileService activity_FileService;
+	
+	@Autowired
+	private Activity_ImgService activity_ImgService;
+	
+	private String qiniuurl;
+	
+	
+	/**
+	 * @return the qiniuurl
+	 */
+	public String getQiniuurl() {
+		return qiniuurl;
+	}
+
+	/**
+	 * @param qiniuurl the qiniuurl to set
+	 */
+	public void setQiniuurl(String qiniuurl) {
+		this.qiniuurl = qiniuurl;
+	}
+
+	@RequestMapping(method = RequestMethod.GET)
+	public ModelAndView list(){
+		ModelAndView mv= new ModelAndView("/activity/activity_list");
+		List<ActivityLabel> activityLabels = activityLabelService.selectAll();
+		mv.addObject("activityLabels", activityLabels);
+		return mv;
+	}
+	
+	@InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        // 表示如果命令对象有Date类型的属性，将使用该属性编辑器进行类型转换
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss"), true));
+    }
+	
+	@Autowired
+    public Utils utils;
+	private String savehttp;
+
+    private String savepath;
+    
+    
+    /**
+	 * @return the savehttp
+	 */
+	public String getSavehttp() {
+		return savehttp;
+	}
+
+	/**
+	 * @param savehttp the savehttp to set
+	 */
+	public void setSavehttp(String savehttp) {
+		this.savehttp = savehttp;
+	}
+
+	/**
+	 * @return the savepath
+	 */
+	public String getSavepath() {
+		return savepath;
+	}
+
+	/**
+	 * @param savepath the savepath to set
+	 */
+	public void setSavepath(String savepath) {
+		this.savepath = savepath;
+	}
+
+	@Autowired
+    public JsonMessageUtil jsonMessageUtil;
+	
+	@RequestMapping(value="/list",method = RequestMethod.GET)
+	@ResponseBody
+	public String findAllByPage(Activity activity)
+			throws SortConditionException, PageConditionException, SearchConditionException{
+		Map<String,Object> map=new HashMap<String, Object>();
+		Page<Activity> li=activityService.findAll(activity,null);
+		map.put("rows", li.getContent());
+		map.put("currentPage", activity.getCurrentPage());
+		map.put("totalPageSize", li.getTotalPages());
+		map.put("totalRecords", li.getTotalElements());
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd H:m:s").create();
+		
+		return gson.toJson(map);
+	}
+	
+	
+	
+	
+	@RequiresPermissions("root:activity:activity_add")
+	@RequestMapping(value="/create")
+	@ResponseBody
+	public String createActivity(Activity activity,Activity_File activity_File,Activity_Img activity_Img){
+		String json = "";
+		if(activity!=null){
+			try {
+				Activity activity1=new Activity();
+				//activity的id不为null时则编辑活动
+				if(activity.getId()!=null&&!"".equals(activity.getId())){
+					activity1=activityService.findActivity(activity.getId());
+					activity1.setAddress(activity.getAddress());
+					activity1.setDetails(activity.getDetails());
+					activity1.setFreegift(activity.getFreegift());
+					activity1.setNamelist(activity.getNamelist());
+					activity1.setNumber(activity.getNumber());
+					activity1.setTitle(activity.getTitle());
+					activity1.setActivityLabel(activity.getActivityLabel());
+					activity1.setDate(activity.getDate());
+					activity1.setEnd_time(activity.getEnd_time());
+					activity.setContent(activity.getContent());
+					activityService.createActivity(activity1);
+					
+					//分别保存批量上传的活动文件到activity_file表中
+			        String[] fileArray = activity_File.getFile().split(",");
+					String[] fileNameArray = activity_File.getFilename().split(",");
+			        for (int i = 0; i < fileArray.length; i++) {
+			        	Activity_File file = new Activity_File();
+			        	file.setActivity_id(activity.getId());
+			        	file.setFile(fileArray[i]);
+			        	file.setFilename(fileNameArray[i]);
+			        	activity_FileService.save(file);
+			            System.out.println(fileArray[i]);
+			            System.out.println(fileNameArray[i]);
+			        }
+
+			        //分别保存批量上传的活动图片到activity_img表中
+			        String[] imgArray = activity_Img.getFileimg().split(",");
+					String[] imgNameArray = activity_Img.getImgcontent().split(",");
+			        for (int i = 0; i < imgArray.length; i++) {
+			        	Activity_Img img = new Activity_Img();
+			        	img.setActivity_id(activity.getId());
+			        	img.setFileimg(imgArray[i]);
+			        	img.setImgcontent(imgNameArray[i]);
+			        	activity_ImgService.saveActivity_img(img);
+			            System.out.println(imgArray[i]);
+			            System.out.println(imgArray[i]);
+			        }
+				}else{
+					//activity的id为null时则新增活动
+					Activity ac=activityService.createActivity(activity);
+					
+					//分别保存批量上传的活动文件到activity_file表中
+					String[] fileArray = activity_File.getFile().split(",");
+					String[] fileNameArray = activity_File.getFilename().split(",");
+			        for (int i = 0; i < fileArray.length; i++) {
+			        	Activity_File file = new Activity_File();
+			        	file.setActivity_id(ac.getId());
+			        	file.setFile(fileArray[i]);
+			        	file.setFilename(fileNameArray[i]);
+			        	activity_FileService.save(file);
+			            System.out.println(fileArray[i]);
+			            System.out.println(fileNameArray[i]);
+			        }
+			        
+			        //分别保存批量上传的活动图片到activity_img表中
+			    	String[] imgArray = activity_Img.getFileimg().split(",");
+					String[] imgNameArray = activity_Img.getImgcontent().split(",");
+			        for (int i = 0; i < imgArray.length; i++) {
+			        	Activity_Img img = new Activity_Img();
+			        	img.setActivity_id(activity.getId());
+			        	img.setFileimg(imgArray[i]);
+			        	img.setImgcontent(imgNameArray[i]);
+			        	activity_ImgService.saveActivity_img(img);
+			            System.out.println(imgArray[i]);
+			            System.out.println(imgArray[i]);
+			        }
+				}
+				json=JsonResultUtils.success("新增活动成功");
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		}else{
+			json = JsonResultUtils.error("信息不完整，请确认后重新提交");
+		}
+		return json;
+	}
+	
+	@RequiresPermissions("root:activity:activity_add")
+	@RequestMapping(value = "/create",method = RequestMethod.GET)
+	public ModelAndView create(){
+		ModelAndView mv= new ModelAndView("/activity/activity_create");
+		mv.addObject("activity", new Activity());
+		mv.addObject("activity_file", new Activity_File());
+		mv.addObject("activity_img", new Activity_Img());
+		List<ActivityLabel> activityLabels = activityLabelService.selectAll();
+		mv.addObject("activityLabels", activityLabels);
+		return mv;
+	}
+	
+	@RequiresPermissions("root:activity:activity_update")
+	@RequestMapping(value = "/update/{id}",method = RequestMethod.GET)
+	public ModelAndView update(@PathVariable String id){
+		ModelAndView mv=new ModelAndView("/activity/activity_update");
+		Activity activity=activityService.findActivity(id);
+		mv.addObject("activity", activity);
+		List<Activity_Img> activity_Img=activity_ImgService.findActivity_Img(id);
+		mv.addObject("activity_Img", activity_Img);
+		List<Activity_File> activity_File=activity_FileService.findActivity_File(id);
+		mv.addObject("activity_File", activity_File);
+		List<ActivityLabel> activityLabels = activityLabelService.selectAll();
+        mv.addObject("activityLabels", activityLabels);
+		return mv;
+	}
+	
+	@RequestMapping(value = "/show/{id}",method = RequestMethod.GET)
+	public ModelAndView show(@PathVariable String id){
+		ModelAndView mv=new ModelAndView("/activity/activity_show");
+		Activity activity=activityService.findActivity(id);
+		List<Activity_Img> activity_Img=activity_ImgService.findActivity_Img(id);
+		List<Activity_File> activity_File=activity_FileService.findActivity_File(id);
+		mv.addObject("activity_File", activity_File);
+		mv.addObject("activity", activity);
+		mv.addObject("activity_Img", activity_Img);
+		List<ActivityLabel> activityLabels = activityLabelService.selectAll();
+		mv.addObject("activityLabels", activityLabels);
+		return mv;
+	}
+	
+	
+	@RequestMapping(value="/img/{id}",method=RequestMethod.GET)
+	public ModelAndView toImg(@PathVariable String id){
+		ModelAndView mv=new ModelAndView("/activity/activity_img");
+		Activity activity=activityService.findActivity(id);
+		mv.addObject("activity", activity);
+		mv.addObject("activity_img",new Activity_Img());
+		return mv;
+	}
+	
+	@RequiresPermissions("root:activity:activity_delete")
+	@RequestMapping(value="/delete")
+	@ResponseBody
+	public String deleteOne(Activity activity){
+		String json="";
+		if(activity.getId()!=null&&!"".equals(activity.getId())){
+			try {
+				activityService.deleteOne(activity.getId());
+				json=JsonResultUtils.success("删除成功");
+			} catch (Exception e) {
+				json = JsonResultUtils.error("删除失败");
+			} 
+		}
+		return json;
+	}
+	
+	@RequestMapping("/uploadpic")
+    @ResponseBody
+    public String fileUpload(HttpServletRequest request, HttpServletResponse response) {
+        String img = "";
+        String json = "";
+        // 判断是否是multipart类型的请求。
+        if (request instanceof MultipartHttpServletRequest) {
+            MultipartHttpServletRequest mrequest = (MultipartHttpServletRequest) request;
+
+            Iterator<String> it = mrequest.getFileNames();
+
+            // 获取他文件上传的对象
+            String fileName = it.next();
+            MultipartFile multipartFile = mrequest.getFile(fileName);
+            String time = new SimpleDateFormat("yyyyMMddHHMMSS").format(new Date());
+            String  path = savepath+ time + "/";
+            File f = new File(path);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
+            String filename = utils.saveFile(multipartFile, path);
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("img", savehttp  + time + "/" + filename);
+            map.put("imgname",multipartFile.getOriginalFilename());
+            json = jsonMessageUtil.setSuccessJson("上传成功", map);
+
+        } else {
+            json = jsonMessageUtil.setErrorJson("上传失败");
+        }
+        return json;
+    }
+	
+	@RequestMapping("/createimg")
+	@ResponseBody
+	public String createImg(Activity_Img activity_Img){
+		String json="";
+		if(activity_Img!=null){
+			try {
+				activity_ImgService.saveActivity_img(activity_Img);
+				json=JsonResultUtils.success("上传成功");
+			} catch (Exception e) {
+				e.printStackTrace();
+				json = JsonResultUtils.error("上传失败");
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping("/deleteimg")
+	@ResponseBody
+	public String deleteImg(String id){
+		String json="";
+		if(id!=null&&!"".equals(id)){
+			try {
+				activity_ImgService.deleteById(id);
+				json=JsonResultUtils.success("删除成功");
+			} catch (Exception e) {
+				e.printStackTrace();
+				json = JsonResultUtils.error("删除失败");
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping("/deletefile")
+	@ResponseBody
+	public String deleteFile(String id){
+		String json="";
+		if(id!=null&&!"".equals(id)){
+			try {
+				activity_FileService.delete(id);
+				json=JsonResultUtils.success("删除成功");
+			} catch (Exception e) {
+				e.printStackTrace();
+				json = JsonResultUtils.error("删除失败");
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping(value = "/upload", method = RequestMethod.POST)
+	@ResponseBody
+	public String upload(HttpServletRequest request, HttpServletResponse response, MultipartFile upload)
+			throws IOException {
+		PrintWriter out = response.getWriter();
+		// CKEditor提交的很重要的一个参数
+		String callback = request.getParameter("CKEditorFuncNum");
+		System.out.println(qiniuurl);
+		String img = "";
+		String uploadContentType = upload.getContentType();
+		// IE6上传jpg图片的headimageContentType是image/pjpeg，而IE9以及火狐上传的jpg图片是image/jpeg
+		// IE6上传的png图片的headimageContentType是"image/x-png"
+		if (uploadContentType.equals("image/pjpeg") || uploadContentType.equals("image/jpeg")
+				|| uploadContentType.equals("image/png") || uploadContentType.equals("image/x-png")
+				|| uploadContentType.equals("image/gif") || uploadContentType.equals("image/bmp")) {
+
+		} else {
+			out.println("<script type=\"text/javascript\">");
+			out.println("window.parent.CKEDITOR.tools.callFunction(" + callback + ",'',"
+					+ "'文件格式不正确（必须为.jpg/.gif/.bmp/.png文件）');");
+			out.println("</script>");
+			return null;
+		}
+		try {
+			if (upload != null && !upload.isEmpty()) {
+				String url = utils.saveFile(upload, savepath);
+				String time = new SimpleDateFormat("yyyyMMddHHMMSS").format(new Date());
+
+				String key = time + "/" + upload.getOriginalFilename();// 保存到七牛中的路径和名称
+				if (utils.upload(url, key)) {
+					// 七牛的路径和地址 保持word文件的路径
+					img = qiniuurl + key;
+				}
+				File tmp = new File(url);
+				if (tmp.exists()) {
+					tmp.delete();
+				}
+			}
+
+		} catch (Exception e) {
+			out.println("<script type=\"text/javascript\">");
+			out.println("window.parent.CKEDITOR.tools.callFunction(" + callback + ",''," + "'上传失败');");
+			out.println("</script>");
+
+		}
+		// 返回"图像"选项卡并显示图片 request.getContextPath()为web项目名
+		out.println("<script type=\"text/javascript\">");
+		out.println("window.parent.CKEDITOR.tools.callFunction(" + callback + ",'" + img + "','')");
+		out.println("</script>");
+		return null;
+	}
+}

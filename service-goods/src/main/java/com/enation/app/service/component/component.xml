@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="服务商品组件" version="1.0" javashop_version="3.0.0"
+	author="javashop">
+	<plugins>
+		<plugin name="商品基本信息插件" id="goodsServicePlugin">
+			<bundle id="goodsPluginBundle"></bundle>
+		</plugin>
+		<plugin name="确认付款生成服务号插件" id="serviceGoodsOrderConfirmPayPlugin">
+			<bundle id="orderPluginBundle"></bundle>
+		</plugin>
+		<plugin name="服务商品插件" id="serviceGoodsPlugin">
+			<bundle id="goodsPluginBundle"></bundle>
+		</plugin>
+		<!-- <plugin name="cms数据日志记录插件" id="cmsDataLogPlugin"> <bundle id="articlePluginBundle"></bundle> 
+			</plugin> -->
+
+	</plugins>
+</component>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <#assign title = '优惠劵管理' />
+    <#include '/new_store/common/header.html' />
+    <script type="text/javascript" src="${ctx}${themes_path}/js/My97DatePicker/WdatePicker.js"></script>
+    <link rel="stylesheet" href="${ctx}${themes_path}/new_store/css/pages/promotions/coupon.css">
+    <script type="text/javascript" src="${ctx}${themes_path}/new_store/js/pages/promotions/store-coupons.js"></script>
+</head>
+<body>
+<#assign mainPageName = 'main_promotions' />
+<#assign lowerPageName = 'lower_promotions_coupons' />
+<#include '/new_store/common/sidebar.html' />
+<div class="app-nav">
+    <ul class="list-nav" onclick="location.reload(); ">
+        <li><a href="javascript: void(0);">优惠劵管理</a></li>
+    </ul>
+</div>
+
+<!--主页面区↓-->
+<div  class="app-wappler">
+    <div class="inner-app-wappler">
+    	<#-- 创建获取店铺优惠券分页列表标签 -->
+        <#assign storeCouponsListTag = newTag("storeCouponsListTag")>
+        <#-- 调用获取店铺优惠券分页列表标签 -->
+        <#assign storeCouponsList = storeCouponsListTag()/>
+        
+        <#-- 创建获取省级地区列表标签 -->
+		<#assign provinceListTag = newTag("provinceListTag")>
+		<#-- 调用获取省级地区列表标签 -->
+		<#assign provinceList = provinceListTag()/>
+        <div class="coupon">
+            <div class="coupon-top-tools">
+                <a href="javascript: void(0);" class="btn btn-success coupon-add" title="添加新赠品">新增</a>
+                <div class="senior-search" style="float: right; margin-top: 10px;">
+                	<a href="javascript: void(0);" class="btn btn-info" style="float: left; font-size: 12px; margin-left: 10px;">高级搜索</a>
+                </div>
+                <div class="coupons-seach" style="float: right;">
+                    <input type="text" class="form-control coupons-seach-input" value="${storeCouponsList.keyword!''}">
+                    <a href="javascript: void(0);" class="btn btn-info">搜索</a>
+                </div>
+            </div>
+            <div class="senior-search-all" style="border-bottom: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; padding: 10px 0; display: none;">
+            	<div class="senior-search-cond" style="width: 98%;">
+	           		<input type="hidden" value="${storeCouponsList.search_type!0}" class="advanced" name="advanced"/>
+	           		<div style="">
+	           			<div style="display: inline-block;">
+	            			<span>名称：</span>
+	            			<input type="text" class="form-control senior-keyword" value="${storeCouponsList.keyword!''}" style="width: 100px;height: 15px;display: inline-block;">
+	            		</div>
+	            		<div style="display: inline-block; margin-left: 30px;">
+	            			<span>类型：</span>
+	            			<select class="form-control coupons-type" id="coupons-type" style="width: 100px;display: inline-block;">
+		         				<option value="">请选择</option>
+								<option value="0" <#if storeCouponsList.coupons_type??><#if storeCouponsList.coupons_type == '0'>selected="selected"</#if></#if>>满减券</option>
+								<option value="1" <#if storeCouponsList.coupons_type??><#if storeCouponsList.coupons_type == '1'>selected="selected"</#if></#if>>折扣券</option>
+								<option value="2" <#if storeCouponsList.coupons_type??><#if storeCouponsList.coupons_type == '2'>selected="selected"</#if></#if>>现金券</option>
+		         			</select>
+	            		</div>
+	            		<div style="display: inline-block; margin-left: 30px;">
+	            			<span>状态：</span>
+	            			<select class="form-control coupons-status" id="coupons-status" style="width: 100px;display: inline-block;">
+	          					<option value="">请选择</option>
+								<option value="0" <#if storeCouponsList.coupons_status??><#if storeCouponsList.coupons_status == '0'>selected="selected"</#if></#if>>未生效</option>
+								<option value="1" <#if storeCouponsList.coupons_status??><#if storeCouponsList.coupons_status == '1'>selected="selected"</#if></#if>>已生效</option>
+								<option value="2" <#if storeCouponsList.coupons_status??><#if storeCouponsList.coupons_status == '2'>selected="selected"</#if></#if>>已失效</option>
+	          				</select>
+	            		</div>
+	            		<div style="display: inline-block; margin-left: 30px;">
+	            			<span>发放状态：</span>
+	            			<select class="form-control send-status" id="send-status" style="width: 100px;display: inline-block;">
+	          					<option value="">请选择</option>
+								<option value="0" <#if storeCouponsList.send_status??><#if storeCouponsList.send_status == '0'>selected="selected"</#if></#if>>未发放</option>
+								<option value="1" <#if storeCouponsList.send_status??><#if storeCouponsList.send_status == '1'>selected="selected"</#if></#if>>已发放</option>
+	            			</select>
+	            		</div>
+	           		</div>
+	           		<div class="senior-start-search" style="float: right;">
+	                	<a href="javascript: void(0);" class="btn btn-info" style="float: left; font-size: 12px; margin-left: 10px;">开始搜索</a>
+	                </div>
+	           		<div style="margin-top: 20px;">
+	           			<div style="display: inline-block;">
+	            			<span>使用地区：</span>
+	            			<select class="form-control province-id" id="province-id" style="width: 100px;display: inline-block;">
+	          					<option value="">请选择</option>
+	          					<#if provinceList??>
+	          						<#list provinceList as province>
+										<option value="${province.region_id}" <#if storeCouponsList.province_id??><#if storeCouponsList.province_id == province.region_id>selected="selected"</#if></#if>>${province.local_name}</option>
+									</#list>
+								</#if>
+	           				</select>
+	            		</div>
+	           			<div style="display: inline-block; margin-left: 30px;">
+	            			<span>生效日期：</span>
+	            			<input type="text" class="form-control dialog-time-start" id="startDate" value="${storeCouponsList.start_date!''}" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" 
+	                				readonly="readonly" style="background-color: #ffffff; cursor: pointer; width: 176px; height: 15px;display: inline-block;"/>
+	            		</div>
+	            		<div style="display: inline-block; margin-left: 30px;">
+	            			<span>失效日期：</span>
+	            			<input type="text" class="form-control dialog-time-end" id="endDate" value="${storeCouponsList.end_date!''}" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" 
+	            					readonly="readonly" style="background-color: #ffffff; cursor: pointer; width: 176px; height: 15px;display: inline-block;"/>
+	            		</div>
+	           		</div>
+	           	</div>
+            </div>
+            <table class="table table-bordered table-responsive" style="margin-top: 10px;">
+                <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>面额(￥)或折扣(%)</th>
+                    <th title="消费满限定金额即可使用">订单金额</th>
+                    <th>使用期限</th>
+                    <th>发行量</th>
+                    <th>已用/领数量</th>
+                    <th>限领数量</th>
+                    <th>使用地区</th>
+                    <th>状态</th>
+                    <th>发放状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <#if storeCouponsList.totalCount != 0 >
+                    <tbody>
+                    <#list storeCouponsList.couponsList.result as coupons>
+                        <tr>
+                            <td>${coupons.coupons_name!''}</td>
+                            <td>
+                            	<#if coupons.coupons_type == 0>
+                            		满减券
+                            	</#if>
+                            	<#if coupons.coupons_type == 1>
+                            		折扣券
+                            	</#if>
+                            	<#if coupons.coupons_type == 2>
+                            		现金券
+                            	</#if>
+                            </td>
+                            <td>
+                            	<#if coupons.coupons_type == 0 || coupons.coupons_type == 2>
+                            		${coupons.coupons_money?string.currency}
+                            	</#if>
+                            	<#if coupons.coupons_type == 1>
+                            		${coupons.coupons_discount}%
+                            	</#if>
+                            </td>
+                            <td title="消费满${coupons.min_order_money!0}元即可使用">
+                            	<#if coupons.coupons_type != 2>
+                            		${coupons.min_order_money?string.currency}
+                            	<#else>
+                            		无限制
+                            	</#if>
+                            </td>
+                            <td class="goods-time">
+	                            <@dateformat time="${(coupons.start_date)?c}" pattern="yyyy-MM-dd"/>至
+	                            <br>
+	                            <@dateformat time="${(coupons.end_date)?c}" pattern="yyyy-MM-dd"/>
+                            </td>
+                            <td>${coupons.coupons_stock!0}</td>
+                            <td>${coupons.used_num!0}/${coupons.received_num!0}</td>
+                            <td>${coupons.limit_num!0}</td>
+                            <td>${coupons.province_name!''}</td>
+                            <td>
+                            	<#if coupons.state == '已失效' || coupons.status == 1>
+                            		已失效
+                            	<#else>
+                            		${coupons.state}
+                            	</#if>
+                            </td>
+                            <td>
+                            	<#if coupons.send_status == 0>
+                            		未发放
+                            	</#if>
+                            	<#if coupons.send_status == 1>
+                            		已发放
+                            	</#if>
+                            </td>
+                            <td class="coupon-oper">
+                            	<#if coupons.state != '已失效' && coupons.status == 0>
+	                            	<#if coupons.send_status == 0>
+		                                <a href="javascript:void(0)" class="btn btn-info coupon-edit" coupons_id="${coupons.coupons_id}" title="修改优惠券信息">修改</a>
+		                                <a href="javascript:void(0);"  class="btn btn-send coupon-send" coupons_id="${coupons.coupons_id}" send_num="${coupons.coupons_stock}" title="发放后不可再修改">发放</a>
+	                                </#if>
+	                                
+	                                <#if coupons.send_status == 1>
+		                                <a href="javascript:void(0)" class="btn btn-info coupon-append" coupons_id="${coupons.coupons_id}" title="追加优惠券发放的数量">追加</a>
+		                                <a href="store-coupons-detail.html?coupons_id=${coupons.coupons_id}"  class="btn btn-detail coupon-detail" title="查看已发放的优惠券信息">查看</a>
+		                                <a href="store-coupons-allot.html?coupons_id=${coupons.coupons_id}" class="btn btn-info coupon-allot" title="将已发放的优惠券按条件分配给用户">分配</a>
+	                                </#if>
+	                            <#else>
+	                            	<#if coupons.send_status == 1>
+		                                <a href="store-coupons-detail.html?coupons_id=${coupons.coupons_id}"  class="btn btn-detail coupon-detail" coupons_id="${coupons.coupons_id}" title="查看已发放的优惠券信息">查看</a>
+	                                </#if>
+                                </#if>
+                                
+                                <#if coupons.state == '已失效' || coupons.status == 1>
+                                	<a href="javascript:void(0);"  class="btn btn-danger coupon-delete" coupons_id="${coupons.coupons_id}" title="将优惠券删除">删除</a>
+                                <#else>
+                                	<a href="javascript:void(0);"  class="btn btn-danger coupon-invalid" coupons_id="${coupons.coupons_id}" title="将优惠券置为无效">无效</a>
+                                </#if>
+                            </td>
+                        </tr>
+                    </#list>
+                    </tbody>
+            </table>
+            <div class="app-paging-tools">
+                <div class="demo"></div>
+                <div class="paging">
+                    <@pager pageno="${storeCouponsList.page!'1'}" pagesize="${storeCouponsList.pageSize}" totalcount="${storeCouponsList.totalCount}" />
+                </div>
+            </div>
+            <#else>
+                </table>
+                <div class="app-no-data">
+                    <span class="a-no-data">暂无相关数据</span>
+                </div>
+                </#if>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(function(){
+	var advance = $("input[name='advanced']").val();
+	//如果当前搜索为高级搜索
+	if (advance == '1') {
+		$(".senior-search .btn").text('普通搜索');
+		$(".coupons-seach").hide();
+		$(".senior-search-all").show();
+	} else {
+		$(".senior-search .btn").text('高级搜索');
+		$(".coupons-seach").show();
+		$(".senior-search-all").hide();
+	}
+	
+	//普通搜索和高级搜索选项切换
+	$(".senior-search .btn").click(function(){
+		var advanced = $("input[name='advanced']").val();
+		if (advanced == '1') {
+			$(this).text('高级搜索');
+			$(".coupons-seach").show();
+			$("input[name='advanced']").val(0);
+			$(".senior-search-all").hide();
+		} else {
+			$(this).text('普通搜索');
+			$(".coupons-seach").hide();
+			$("input[name='advanced']").val(1);
+			$(".senior-search-all").show();
+		}
+	});
+	
+	//  优惠券高级搜索
+    $(".senior-start-search .btn").click(function(){
+    	var keyword = $.trim($('.senior-keyword').val());
+        var coupons_type = $('#coupons-type').val();
+        var coupons_status = $('#coupons-status').val();
+        var send_status = $('#send-status').val();
+        var province_id = $('#province-id').val();
+        var start_date = $('#startDate').val();
+        var end_date = $('#endDate').val();
+        
+        var url = './store-coupons-list.html?search_type=1';
+        //如果优惠券名称不为空
+        if(keyword != ''){
+            url += '&keyword=' + keyword;
+        }
+        
+        //如果优惠券类型不为空
+        if(coupons_type != ''){
+            url += '&coupons_type=' + coupons_type;
+        }
+        
+        //如果优惠券状态不为空
+        if (coupons_status != '') {
+			url += '&coupons_status=' + coupons_status;
+		}
+        
+        //如果优惠券发放状态不为空
+        if (send_status != '') {
+			url += '&send_status=' + send_status;
+		}
+        
+        //如果优惠券使用地区不为空
+        if (province_id != '') {
+			url += '&province_id=' + province_id;
+		}
+        
+        //如果优惠券生效日期不为空
+        if (start_date != '') {
+			url += '&start_date=' + start_date;
+		}
+        
+        //如果优惠券失效日期不为空
+        if (end_date != '') {
+			url += '&end_date=' + end_date;
+		}
+        
+        location.href = url;
+    });
+});
+</script>
+<style>
+.coupon-send, .coupon-detail {
+	background-color: #5cb85c;
+    border-color: #4cae4c;
+    color: #fff;
+}
+.coupon-allot {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+}
+.coupon .coupons-seach input {
+    float: left;
+    height: 15px;
+    margin-top: 2px;
+    width: 100px;
+}
+.coupon .coupons-seach {
+    float: right;
+    margin-top: 10px;
+}
+.coupon .coupons-seach .btn {
+    float: left;
+    font-size: 12px;
+    margin-left: 10px;
+}
+</style>
+</body>
+</html>

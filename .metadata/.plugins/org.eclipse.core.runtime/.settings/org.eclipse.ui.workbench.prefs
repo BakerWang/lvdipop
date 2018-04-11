@@ -1,0 +1,5 @@
+//org.eclipse.ui.commands/state/org.eclipse.ui.navigator.resources.nested.changeProjectPresentation/org.eclipse.ui.commands.radioState=false
+//org.eclipse.ui.commands/state/org.eclipse.wst.xml.views.XPathView.processor.xpathprocessor/org.eclipse.ui.commands.radioState=xpath10
+PLUGINS_NOT_ACTIVATED_ON_STARTUP=org.eclipse.epp.logging.aeri.ui;org.eclipse.equinox.p2.ui.sdk.scheduler;org.eclipse.jst.j2ee.webservice.ui;org.eclipse.m2e.discovery;org.eclipse.mylyn.tasks.ui;org.eclipse.mylyn.team.ui;org.eclipse.oomph.setup.ui;org.eclipse.oomph.workingsets.editor;org.eclipse.rse.ui;org.eclipse.ui.monitoring;
+RUN_IN_BACKGROUND=true
+eclipse.preferences.version=1

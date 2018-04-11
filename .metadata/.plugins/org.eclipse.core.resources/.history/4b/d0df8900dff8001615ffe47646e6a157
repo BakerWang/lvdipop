@@ -1,0 +1,182 @@
+/**
+ * 
+ */
+package com.bizdata.management.service.Impl;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.CriteriaBuilder.In;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.bizdata.commons.utils.JpaPageSortWhereCondition;
+import com.bizdata.framework.exception.PageConditionException;
+import com.bizdata.framework.exception.SearchConditionException;
+import com.bizdata.framework.exception.SortConditionException;
+import com.bizdata.management.domain.Agreement;
+import com.bizdata.management.repository.AgreementRepository;
+import com.bizdata.management.service.AgreementService;
+
+/**   
+ * 
+ * @author caojie 
+ * @date 2016年9月8日下午3:15:04
+ * 
+ */
+@Service
+public class AgreementServiceImpl implements AgreementService{
+
+	@Autowired
+	private AgreementRepository agreementRepository;
+
+	//构建PageRequest
+    private PageRequest buildPageRequest(int pageNumber, int pagzSize) {
+		 Sort sort= new Sort(Sort.Direction.DESC, "id");
+        return new PageRequest(pageNumber, pagzSize, sort);
+    }
+	
+	
+	/**
+	 * 展示所有协议
+	 * @author caojie
+	 * @date 2016年9月8日下午3:50:53
+	 *
+	 */
+	@Override
+	public Page<Agreement> findAllByPage(JpaPageSortWhereCondition jpaPageSortWhereCondition)
+			throws SortConditionException, PageConditionException, SearchConditionException {
+		Page<Agreement> agreement=null;
+		if(jpaPageSortWhereCondition.isSearch()){
+			jpaPageSortWhereCondition.convert();
+			agreement=agreementRepository.findAll(jpaPageSortWhereCondition.getSpecification(),jpaPageSortWhereCondition.getPageAble());
+		}else{
+			agreement=agreementRepository.findAll(jpaPageSortWhereCondition.getPageAble());
+		}
+		
+		return agreement;
+	}
+
+	/**
+	 * 
+	 * @author caojie
+	 * @date 2016年9月9日上午10:35:27
+	 *
+	 */
+	@Override
+	public Page<Agreement> findAllByCondition(Agreement agreement, JpaPageSortWhereCondition jpaPageSortWhereCondition)
+			throws SortConditionException, PageConditionException, SearchConditionException {
+		
+		
+		return null;
+	}
+
+	/**
+	 * 
+	 * @author caojie
+	 * @date 2016年9月12日下午1:55:46
+	 *
+	 */
+	@Override
+	public void createAgreement(Agreement agreement) {
+		agreement.setDateofsigning(agreement.getDateofsigning());
+		agreement.setNumber(agreement.getNumber());
+		agreementRepository.save(agreement);
+	}
+
+	/**
+	 * 
+	 * @author caojie
+	 * @date 2016年9月13日下午3:50:04
+	 *
+	 */
+	@Override
+	public Agreement findAgreement(String id) {
+		
+		
+		return agreementRepository.findOne(id);
+	}
+
+	/**
+	 * 
+	 * @author caojie
+	 * @date 2016年10月18日下午3:22:05
+	 *
+	 */
+	@Override
+	public Page<Agreement> findAll(Agreement agreement, List<String> idS) {
+		PageRequest request = this.buildPageRequest(agreement.getPage(),agreement.getRows());
+		Specification<Agreement> spec = new Specification<Agreement>(){
+
+			@Override
+			public Predicate toPredicate(Root<Agreement> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				List<Predicate> list = new ArrayList<Predicate>();
+				if(StringUtils.isNotEmpty(agreement.getNumber())){
+					System.out.println(agreement.getNumber());
+					list.add(cb.like(root.get("number").as(String.class),"%"+agreement.getNumber()+"%"));
+					list.add(cb.like(root.get("title").as(String.class),"%"+agreement.getNumber()+"%"));
+					list.add(cb.like(root.get("otherunits").as(String.class),"%"+agreement.getNumber()+"%"));
+					list.add(cb.like(root.get("ourunits").as(String.class),"%"+agreement.getNumber()+"%"));
+				}
+				
+//				if(null!=agreement.getTitle()&&!"".equals(agreement.getTitle())){
+//					
+//				}
+//				if(null!=agreement.getOtherunits()&&!"".equals(agreement.getOtherunits())){
+//					
+//				}
+//				if(null!=agreement.getOurunits()&&!"".equals(agreement.getOurunits())){
+//					
+//				}
+				
+				
+				if(null!=agreement.getBegin_time()&&null!=agreement.getEnd_time()){
+					list.add(cb.between(root.get("dateofsigning"), agreement.getBegin_time(), agreement.getEnd_time()));
+				}
+//				if(null!=agreement.getState()&&!"".equals(agreement.getState())){
+//					list.add(cb.equal(root.get("state").as(String.class),agreement.getState()));
+//				}
+//				In in = cb.in(root.get("id").as(String.class));
+//				for(String b:idS){
+//			    	   in.value(b);
+//			    }
+//				list.add(in);
+				Predicate[] ps = new Predicate[list.size()];  
+				return cb.or(list.toArray(ps));  
+			}
+			
+		};
+		return agreementRepository.findAll(spec, request);
+	}
+
+
+	/**
+	 * 
+	 * @author caojie
+	 * @date 2016年10月19日下午6:48:13
+	 *
+	 */
+	@Override
+	public void deleteOne(String id) {
+		agreementRepository.delete(id);
+	}
+
+
+	
+
+	
+	
+	
+}

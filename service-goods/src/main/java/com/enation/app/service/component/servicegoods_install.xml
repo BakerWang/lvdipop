@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dbsolution>
+<!-- 	<action>
+		<command>alter</command>
+		<table>cart</table>
+		<field type="add">
+			<name>goods_type</name>
+			<type>int</type>
+			<size>10</size>
+		</field>
+	</action> -->
+	<!--服务商品表-->
+	<action>
+		<command>create</command>
+		<table>goods_servicegoods</table>
+		<field><name>service_id</name><type>int</type><size>8</size><option>11</option></field>
+		<field><name>item_id</name><type>int</type><size>8</size><option>00</option></field>
+		<field><name>valid_term</name><type>int</type><size>8</size><option>00</option></field>
+		<field><name>create_time</name><type>int</type><size>11</size><option>00</option></field>
+		<field><name>enable_time</name><type>int</type><size>11</size><option>00</option></field>
+		<field><name>code</name><type>varchar</type><size>255</size><option>00</option></field>
+		<field><name>store_id</name><type>int</type><size>11</size><option>00</option></field>
+		<field><name>status</name><type>int</type><size>10</size><option>00</option><default>0</default></field>
+		<field><name>look_status</name><type>int</type><size>10</size><option>00</option><default>0</default></field>
+	</action>
+	<action>
+		<command>create</command>
+		<table>booking</table>
+		<field><name>booking_id</name><type>int</type><size>8</size><option>11</option></field>
+		<field><name>goods_id</name><type>int</type><size>8</size><option>00</option></field>
+		<field><name>store_id</name><type>int</type><size>8</size><option>00</option></field>
+		<field><name>member_id</name><type>int</type><size>11</size><option>00</option></field>
+		<field><name>create_time</name><type>int</type><size>11</size><option>00</option></field>
+		<field><name>booking_name</name><type>varchar</type><size>255</size><option>00</option></field>
+		<field><name>booking_mobile</name><type>varchar</type><size>255</size><option>00</option></field>
+		<field><name>booking_time</name><type>int</type><size>11</size><option>00</option></field>
+		<field><name>sex</name><type>int</type><size>1</size><option>00</option><default>0</default></field>
+		<field><name>code</name><type>varchar</type><size>255</size><option>00</option></field>
+		<field><name>age</name><type>int</type><size>10</size><option>00</option><default>0</default></field>
+		<field><name>booking_status</name><type>int</type><size>10</size><option>00</option><default>0</default></field>
+	</action>
+</dbsolution>

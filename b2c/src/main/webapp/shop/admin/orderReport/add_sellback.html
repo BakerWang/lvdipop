@@ -1,0 +1,488 @@
+<#include '/admin/header.html' > 
+<#assign dateformat="com.enation.framework.directive.DateformateDirective"?new()>
+<#assign permssion="com.enation.app.base.core.directive.PermssionDirective"?new()>
+
+<style>
+.input_text {
+	width: 180px;
+}
+</style>
+
+<div class="main">
+	<form method="post" id="theForm">
+		<input type="hidden" value="${orderinfo.member_id!'' }" name="member_id" />
+		<input type="hidden" value="${orderinfo.order_id }" name="orderId" />
+		<input type="hidden" value="1" name="status"/>
+		<div class="shadowBoxWhite  whiteBox detail">
+			<table cellspacing="0" cellpadding="0" border="0" style="width: 99%;">
+				<tr>
+					<th class="title" colspan="8">新建退货申请</th>
+				</tr>
+				<tr>
+					<td align="right">退货单号：</td>
+					<td><input type="hidden" name="tradeno" value="${orderinfo.sn }" /></td>
+					<td>状态：</td>
+					<td>申请退货</td>
+				</tr>
+				<tr>
+					<td>关联订单号：</td>
+					<td>${orderinfo.sn } 
+						<input type="hidden" name="ordersn" value="${orderinfo.sn }" /></td>
+					<td>订单使用：</td>
+					<td><span id="meta"></span> 已支付：￥${orderinfo.paymoney}</td>
+				</tr>
+
+				<tr>
+					<td>退货人：</td>
+					<td>${orderinfo.ship_name!'' } 
+						<input type="hidden" name="sndto" value="${orderinfo.ship_name!'' }">
+					</td>
+					 <td>退款方式：</td>
+					<td>
+						<select name="refund_way" id="refund_way"> 
+							<option value="0">-- 请选择退款方式 --</option>
+							<#list paymentList as payment  >
+								<#if payment.type!="cod">
+									<option value="${payment.name}"> ${payment.name} </option>
+								</#if>
+							</#list>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>是否收货：</td>
+					<td>
+						<input type="radio" name="ship_status" value="1" checked="checked">已收货
+						<input type="radio" name="ship_status" value="0">未收货
+					</td>
+					<td>退货原因：</td>
+					<td>
+						<select id="reason" name="reason" >
+							<option value="商品质量有问题">商品质量有问题</option>
+							<option value="收到商品与描述不符">收到商品与描述不符</option>
+							<option value="不喜欢/不想要">不喜欢/不想要</option>
+							<option value="发票问题">发票问题</option>
+							<option value="空包裹">空包裹</option>
+							<option value="其他">其他</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>退款账号</td>
+					<td><input type="text" class="input_text" id="return_account" name="return_account" data-options="required:true"/> </td>
+					<td>退款金额：</td>
+					<td>
+						<input type="text"  maxlength="8"  name="apply_alltotal" value="${orderinfo.order_amount }" class="input_text easyui-numberbox" precision="2"/>
+					</td>
+				</tr>
+				<tr>
+					<td align="right">操作备注：</td>
+					<td colspan="3">
+						<input type="text" class="input_text" value="" id="seller_remark" name="remark" />
+					</td>
+				</tr> 
+			</table>
+		</div>
+		<br>
+		<div class="shadowBoxWhite  whiteBox detail" >
+			<table class="goodsList" cellspacing="0" cellpadding="0" border="0" style="width: 99%;">
+				<input type="hidden" id="packDetailJson" name="packDetailJson" />
+				<thead>
+					<tr>
+						<th class="title" colspan="6">请选择要退货的商品</th>
+					</tr>
+					<tr> 
+					<th>是否退货</th> 
+					<th>商品图片</th>
+					<th>商品名称</th>
+					<th>单价</th>
+					<th>购买数量</th>
+					<th>退货数量</th> 
+					</tr>
+				</thead>
+				<#list orderItem as item>
+					<tr>
+							<td>
+								<#if item.state==0 >
+									<input type="checkbox" name="goodsId" value="${item.goods_id}" autocomplete="off"/>
+									<span style="display:none">
+									<input type="checkbox" class="need_sync" goods_id="${item.goods_id}" name="item_id" value="${item.item_id}" autocomplete="off"/> 
+									<input type="checkbox" class="need_sync" goods_id="${item.goods_id}"  name="productId" value="${item.product_id}"  autocomplete="off"/>
+									<input type="checkbox" class="need_sync"  goods_id="${item.goods_id}" name="price" value="${item.price}"  autocomplete="off"/>
+									<input type="checkbox" class="need_sync" goods_id="${item.goods_id}" name="payNum" value="${item.num}" autocomplete="off"/> 
+									<input type="hidden" goods_id="${item.goods_id}" name="return_type" value="0"/>
+									</span>
+								<#else>
+						 		&nbsp;&nbsp;
+								</#if>
+							</td>
+							<td style="width:50px">
+								<a target="_blank" href="${ctx}/goods-${item.goods_id}.html">
+									<span style="display: block; height: 50px;" class="cart-product-img">
+										<img height="50" src="${item.image!''}"  style="cursor: pointer;" />
+									</span>
+								</a>				
+							</td>
+							<td style="width:300px;"><a target="_blank" href="${ctx}/goods-${item.goods_id}.html">
+							${item.name}
+							
+							<#if item.other?? >
+								${item.other}
+							</#if>
+							</a></td>
+							<td>${item.price?string.currency}</td>
+							<td>
+								${item.num}
+							</td>
+							<td>
+								<input name="goodsNum" onkeyup="this.value=this.value.replace(/[^0-9]+/g, '');"  type="text" value="${item.num}" disabled="disabled" maxnum="${item.num}" goods_id="${item.goods_id}" class="input_text"  style="width:30px" autocomplete="off" />
+							</td> 
+						</tr>
+						<#if item.itemList?exists>
+							<input type="hidden" name="child_val" value="1"/>
+							<#list item.itemList as itemChild>
+								<tr class="child_${item.goods_id}">
+									<td>
+										<input type="checkbox" name="rel_goods_id" parentId="${item.goods_id}" parentNum="${item.num}" value="${itemChild.goodsid}" autocomplete="off"/>
+										<span style="display:none">
+											<input type="checkbox" class="need_sync" rel_goods_id="${itemChild.goodsid}" name="rel_item_id" value="${itemChild.itemid}" autocomplete="off"/> 
+											<input type="checkbox" class="need_sync" rel_goods_id="${itemChild.goodsid}" name="rel_product_id" value="${itemChild.productid}"  autocomplete="off"/>
+											<input type="checkbox" class="need_sync" rel_goods_id="${itemChild.goodsid}" name="rel_num" value="${itemChild.num}" autocomplete="off"/> 
+										</span>
+									</td>
+									<td style="width:50px">
+										<a href="javascript:void(0);">
+											<span style="display: block; height: 50px;" class="cart-product-img">
+												<img height="50" src="${itemChild.image!''}"  style="cursor: pointer;" />
+											</span>
+										</a>
+									</td>
+									<td style="width:300px;">
+										<span style="float: left;">${itemChild.name!''}</span>
+										<span style="color: red;">(捆绑商品)</span>
+									</td>
+									<td>${itemChild.price?string.currency}</td>
+									<td>${itemChild.num}</td>
+									<td>
+										<input name="rel_goods_num" parentId="${item.goods_id}" disabled="disabled" type="text" value="${itemChild.num}" onkeyup="this.value=this.value.replace(/[^0-9]+/g, '');"
+											maxnum="${itemChild.num}" goods_id="${itemChild.goodsid}" class="input_text" style="width:30px" autocomplete="off"/>
+									</td>
+								</tr>
+							</#list>
+						</#if>
+					</#list>
+					<#if (gift.gift_id)??>
+						<tr>
+							<td>
+								<#if gift.gift_status == 0>
+									<input type="checkbox" name="gift_id" value="${gift.gift_id!''}" disabled="disabled" checked="checked"/>
+								<#else>
+						 		&nbsp;&nbsp;
+								</#if>
+							</td>
+							<td style="width:50px">
+								<span style="display: block; height: 50px;" class="cart-product-img">
+									<img height="50" width="50" src="${gift.gift_img!''}"/>
+								</span>
+							</td>
+							<td style="width:300px;">${gift.gift_name!''}<span style="color: red; ">（赠品，必须退回）</span></td>
+							<td>${gift.gift_price?string.currency}</td>
+							<td>1</td>
+							<td><input type="text" value="1" disabled="disabled" class="input_text" style="width:30px"/></td>
+						</tr>
+					</#if>
+			</table>
+		</div>
+	</form>
+	
+	<div class="buttonWrap">
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">提交申请</a>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+$(function(){
+	//如果child值为1，那么这证明退货的商品中包含有套餐捆绑商品 add_by DMRain 2016-9-12
+	var child = $("input[name='child_val']").val();
+	
+	$("input[name='goodsId']").click(function(){
+		var checked = this.checked;
+		var goodsid  = $(this).val();
+		if(checked){
+			$(".need_sync[goods_id="+goodsid+"]").attr("checked","checked");
+			$("[name=goodsNum][goods_id="+goodsid+"]").removeAttr("disabled");
+			
+			//捆绑商品相关操作,如果退货含有套餐商品
+			if (child == 1) {
+				
+				//设置退货类型为套餐商品退货主商品退货
+				$("[name=return_type][goods_id="+goodsid+"]").val(1);
+				
+				//循环套餐捆绑商品ID，选中并禁用
+				$("[name=rel_goods_id][parentId="+goodsid+"]").each(function(){
+					$(this).attr("checked","checked");
+					$(this).attr("disabled","disabled");
+				});
+				
+				//循环套餐捆绑商品数量，使其保持禁用状态并且数量为最大退货数量
+				$("[name=rel_goods_num][parentId="+goodsid+"]").each(function(){
+					var rel_num = $(this).attr("maxnum");
+					var rel_goods_id = $(this).attr("goods_id");
+					$(this).val(rel_num);
+					$(this).attr("disabled","disabled");
+				});
+			}
+			
+		}else{
+			$(".need_sync[goods_id="+goodsid+"]").removeAttr("checked");
+			$("[name=goodsNum][goods_id="+goodsid+"]").attr("disabled","disabled");
+			
+			//捆绑商品相关操作,如果退货含有套餐商品
+			if (child == 1) {
+				//设置退货类型为普通退货
+				$("[name=return_type][goods_id="+goodsid+"]").val(0);
+				
+				//循环套餐捆绑商品ID，删除选中和禁用
+				$("[name=rel_goods_id][parentId="+goodsid+"]").each(function(){
+					$(this).removeAttr("checked");
+					$(this).removeAttr("disabled");
+				});
+			}
+		}
+	});
+	
+	//捆绑商品相关操作,如果退货含有套餐商品
+	if (child == 1) {
+		//如果主商品的数量发生变化，套餐捆绑的商品退货的数量也要相应的发生变化
+		$("input[name='goodsNum']").change(function(){
+			//获取主商品ID
+		    var goods_id = $(this).attr("goods_id");
+			//获取主商品最大能退货的数量
+		    var max_num = $(this).attr("maxnum");
+			//获取当前主商品退货的数量
+		    var now_num = $(this).val();
+			//循环父ID为主商品ID的捆绑商品的退货数量
+		    $("[name=rel_goods_num][parentId="+goods_id+"]").each(function(){
+				//获取当前退货的捆绑商品可以退货的最大数量
+		    	var rel_num = $(this).attr("maxnum");
+				//重新计算当前退货的捆绑商品的退货数量
+				var now_rel_num = now_num * (rel_num / max_num);
+				//为退货的捆绑商品的退货数量赋值
+				$(this).val(now_rel_num);
+			});
+		});
+		
+		//当点击套餐捆绑商品的checkbox时
+		$("input[name='rel_goods_id']").click(function(){
+			//获取套餐捆绑商品的父ID
+			var p_id = $(this).attr("parentId");
+			//获取套餐捆绑商品ID
+			var c_id = $(this).val();
+			//获取套餐捆绑商品的父商品退货数量
+			var p_num = $(this).attr("parentNum");
+			//是否选中套餐捆绑商品
+			var checked = this.checked;
+			//如果套餐捆绑商品的checkbox为选中状态
+			if (checked) {
+				//解禁套餐捆绑商品的退货数量
+				$("[name=rel_goods_num][goods_id="+c_id+"]").removeAttr("disabled");
+				//选中套餐捆绑商品父商品ID的checkbox选项
+				$("[name=goodsId][value="+p_id+"]").attr("checked","checked");
+				//将选中套餐捆绑商品父商品ID的checkbox选项隐藏，不允许其再次修改
+				$("[name=goodsId][value="+p_id+"]").hide();
+				//选中套餐捆绑商品父商品的其他信息
+				$(".need_sync[goods_id="+p_id+"]").attr("checked","checked");
+				//将退货类型改为部分退货
+				$("[name=return_type][goods_id="+p_id+"]").val(2);
+				//还原套餐捆绑商品父商品的退货数量
+				$("[name=goodsNum][goods_id="+p_id+"]").val(p_num);
+				//解禁套餐捆绑商品父商品的退货数量
+				$("[name=goodsNum][goods_id="+p_id+"]").removeAttr("disabled");
+				//将套餐捆绑商品父商品的退货数量设置为隐藏
+				$("[name=goodsNum][goods_id="+p_id+"]").hide();
+			
+			} else {	//如果套餐捆绑商品的checkbox为未选中状态
+				
+				//如果套餐捆绑商品的checkbox选项全部都为未选中状态
+				if(!$("[name=rel_goods_id][parentid="+p_id+"]").is(':checked')) {
+					//删除所有套餐捆绑商品父商品的其他属性的选中状态
+					$(".need_sync[goods_id="+p_id+"]").removeAttr("checked");
+					//将退货类型还原为全部退货
+					$("[name=return_type][goods_id="+p_id+"]").val(0);
+					//显示套餐捆绑商品父商品ID的checkbox选项
+					$("[name=goodsId][value="+p_id+"]").show();
+					//删除套餐捆绑商品父商品ID的checkbox选项的选中状态
+					$("[name=goodsId][value="+p_id+"]").removeAttr("checked");
+					//解除套餐捆绑商品父商品的退货数量的隐藏状态
+					$("[name=goodsNum][goods_id="+p_id+"]").show();
+					//将套餐捆绑商品父商品的退货数量设置为禁用
+					$("[name=goodsNum][goods_id="+p_id+"]").attr("disabled","disabled");
+				}
+				//禁用套餐捆绑商品的退货数量选项
+				$("[name=rel_goods_num][goods_id="+c_id+"]").attr("disabled","disabled");
+			}
+			
+		});
+	}
+	
+	$.getJSON("${ctx}/shop/admin/sell-back/search-sn.do?orderId=${orderinfo.order_id }",function(data){
+		if(data.result == 1){
+			$.Loading.error(data.message);
+			parent.reloadTabGrid("退货单"); 					
+			parent.CloseTabByTitle("申请退货");
+		}
+	});
+});  
+   
+function submitForm() {
+	//如果child值为1，那么这证明退货的商品中包含有套餐捆绑商品 add_by DMRain 2016-9-12
+	var child = $("input[name='child_val']").val();
+	
+	if($("input[name='goodsId']").filter(":checked").length==0){
+		//捆绑商品相关操作,如果退货含有套餐商品
+		if (child != "undefined") {
+			//如果没有选中任何一个套餐捆绑商品
+			if ($("input[name='rel_goods_id']").filter(":checked").length == 0) {
+				alert("请选择要退货的商品");
+				return false;
+			}
+		} else {
+			alert("请选择要退货的商品");
+			return false;
+		}
+	}
+	
+	if($("select[name='refund_way']").val()=="0"){
+		alert("请选择支付方式");
+		return false;
+		
+	}
+	if($("input[name='return_account']").val()==""){
+		alert("请填写退款账号");
+		$("#btnSubmit").removeAttr("disabled");
+		return false;
+	}
+	 
+	
+	var error =0;
+	var jsonArray = [];	//定义套餐捆绑商品的json串
+	
+	//如果选中的主商品个数不为0
+	if($("input[name='goodsId']").filter(":checked").length != 0){
+		$("[name=goodsNum]").each(function(i,v){
+			var $this = $(v);
+			var maxnum= $this.attr("maxnum");
+			var num = $this.val();
+			
+			if(num==""){
+				alert("请输入退货数量");
+				error=1;
+				return ;
+			}
+			
+			
+			if(num=="0"){
+				alert("退货数量不能为0");
+				error=1;
+				return ;
+			} 
+			
+			if(parseInt(num)>parseInt(maxnum)){
+				alert("退货数量不能大于购物数量");
+				error=1;
+				return ;
+			}
+			
+		});
+	} else {
+		//捆绑商品相关操作,如果退货含有套餐商品
+		if (child == 1) {
+			//循环套餐捆绑商品的退货数量
+			$("input[name='rel_goods_num']").each(function(i,v){
+				var $this = $(v);
+				var maxnum= $this.attr("maxnum");
+				var num = $this.val();
+				
+				if(num==""){
+					alert("请输入退货数量");
+					error=1;
+					return ;
+				}
+				
+				
+				if(num=="0"){
+					alert("退货数量不能为0");
+					error=1;
+					return ;
+				}
+				
+				if(parseInt(num) > parseInt(maxnum)){
+					alert("退货数量不能大于购物数量");
+					error=1;
+					return ;
+				}
+				
+			});
+		}
+	}
+	
+	
+	if(1==error){
+		return false;
+	} else {
+		//捆绑商品相关操作,如果退货含有套餐商品
+		if (child == 1) {
+			//循环套餐捆绑商品ID
+			$("input[name='rel_goods_id']").each(function(){
+				//获取套餐捆绑商品ID
+				var c_id = $(this).val();
+				//获取套餐捆绑商品父商品ID
+				var parentId = $(this).attr("parentId");
+				//是否选中套餐捆绑商品
+				var checked = this.checked;
+				//如果套餐捆绑商品是选中状态，就拼接退货的捆绑商品json信息
+				if (checked) {
+					var c_num = $("[name=rel_num][rel_goods_id="+c_id+"]").val();
+					var return_num = $("[name=rel_goods_num][goods_id="+c_id+"]").val();
+					var c_product_id = $("[name=rel_product_id][rel_goods_id="+c_id+"]").val();
+					var c_item_id = $("[name=rel_item_id][rel_goods_id="+c_id+"]").val();
+					var json = {"rel_goods_id" : c_id, "maxnum" : c_num, "parent_id" : parentId,
+							"productId" : c_product_id, "returnNum" : return_num, "rel_item_id" : c_item_id};
+					jsonArray.push(json);
+				}
+			});
+		}
+	}
+	
+	//将拼接好的套餐捆绑商品json信息赋值给ID为packDetailJson的input，以便后台可以得到此json信息
+	$("#packDetailJson").val(JSON.stringify(jsonArray));
+	
+	var formflag= $("#theForm").form('validate');
+	if(formflag){
+		$.Loading.success("正在提交......"); 
+		$(".savebtn").linkbutton("disable");
+		var options = {
+				url : "${ctx}/shop/admin/sell-back/apply.do",
+				type : "POST",
+				dataType : 'json',
+				success : function(result){
+					if(result.result==1){
+						parent.CloseTabByTitle("申请退货");
+						$.Loading.success(result.message);
+					}
+					if(result.result==0){ 
+						$.Loading.error(result.message);
+					}
+					$(".savebtn").linkbutton("enable");
+				},
+				error : function(e) {
+					alert("出现错误 ，请重试");
+					$(".savebtn").linkbutton("enable");
+				}
+			};
+		$("#theForm").ajaxSubmit(options);
+	}
+} 
+</script>
+<#include '/admin/footer.html' >

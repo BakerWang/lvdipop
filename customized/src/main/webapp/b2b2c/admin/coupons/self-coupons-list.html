@@ -1,0 +1,537 @@
+<#include '/admin/header.html' >
+<div class="main">
+	<form id="coupons-form">
+		<div class='buttonArea'>
+			<div style="float:left">
+				<a href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:true" onclick="add()">添加</a>
+			</div>
+			<span style="float: right;"> 
+				<span id="advancedSearch" style="float: right;">
+					<a href="javascript:void(0)" class="button" id="aAdvanced">高级搜索</a>
+				</span>
+				<span id="simpleSearch">
+					<a href="javascript:void(0)" class="button b_fr" data-options="plain:true" onclick="searchCoupons()" style="margin-right: 10px;">筛选</a>
+					<select name="coupons_type" class="inputSelect valid" id="coupons-type" style="margin-right: 10px;width: 100px;height: 30px;">
+						<option value="">全部</option>
+						<option value="0">满减券</option>
+						<option value="1">折扣券</option>
+						<option value="2">现金券</option>
+					</select>
+				</span>
+			</span>
+		</div>
+		<div style="display: block;" class="searchAdvanced" >
+			<input id="Advanced" name="Advanced" type="hidden" value="0" />
+			<table width="98%" border="0" cellspacing="0" cellpadding="8">
+				<tr>
+					<th width="70" align="right">名称</th>
+					<td style="width: 400px;">
+						<input type="text" value="${coupons_name!''}" id="coupons-name"  class="input_text">
+					</td>
+					<th width="70" align="right">类型</th>
+					<td>
+						<select name="coupons_type" class="inputSelect valid" id="coupons-type" >
+							<option value="">--请选择--</option>
+							<option value="0">--满减券--</option>
+							<option value="1">--折扣券--</option>
+							<option value="2">--现金券--</option>
+						</select>
+					</td>
+					<th width="70" align="right">状态</th>
+					<td>
+						<select name="status" class="inputSelect valid" id="coupons-status" >
+							<option value="">--请选择--</option>
+							<option value="0">--未生效--</option>
+							<option value="1">--已生效--</option>
+							<option value="2">--已失效--</option>
+						</select>
+					</td>
+					<th width="70" align="right">发放状态</th>
+					<td>
+						<select name="send_status" class="inputSelect valid" id="send-status" >
+							<option value="">--请选择--</option>
+							<option value="0">--未发放--</option>
+							<option value="1">--已发放--</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th width="70" align="right">使用地区</th>
+					<td>
+						<select name="province_id" class="inputSelect valid" id="province-id" >
+							<option value="0">--请选择--</option>
+							<#if provinceList??>
+								<#list provinceList as province>
+									<option value="${province.region_id}">--${province.local_name}--</option>
+								</#list>
+							</#if>
+						</select>
+					</td>
+					<th width="70" align="right">开始时间</th>
+					<td>
+						<input class="easyui-datebox" style="width: 240px;height: 28px;" id="start-time" />
+					</td>
+					<th width="70" align="right">结束时间</th>
+					<td>
+                        <input class="easyui-datebox" style="width: 240px;height: 28px;" id="end-time" />
+					</td>
+				</tr>
+				<tr>
+					<td width="60" align="right"></td>
+					<td colspan="7" align="center">
+						<a id="searchAdvance" class="button blueButton" onclick="searchCoupons()" href="javascript:;">开始搜索</a>
+						<a class="button blueButton" id="resetInput" href="javascript:;">还原搜索</a>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="clear height10"></div>
+		<div class="shadowBoxWhite tableDiv">
+			<table class="easyui-datagrid"
+				data-options="url:'${ctx}/b2b2c/admin/self-coupons/list-json.do',pageList: [5,10,15,20],pageSize:${pageSize},fitColumns:'true'"
+				pagination="true" id="coupons-data">
+				<thead>
+					<tr>
+						<th data-options="field:'coupons_id',checkbox:true,width:80"></th>
+						<th data-options="field:'coupons_name',width:150">名称</th>
+						<th data-options="field:'coupons_type',width:80" formatter="formatType">类型</th>
+						<th data-options="field:'coupons_money',width:80" formatter="formatMoney">面额(￥)</th>
+						<th data-options="field:'coupons_discount',width:80">折扣(%)</th>
+						<th data-options="field:'min_order_money',width:80" formatter="formatOrderMoney">订单金额</th>
+						<th data-options="field:'start_date',width:100" formatter="formatDate">生效日期</th>
+						<th data-options="field:'end_date',width:100" formatter="formatDate">失效时间</th>
+						<th data-options="field:'coupons_stock',width:80">发行量</th>
+						<th data-options="field:'received_num',width:80">已领数量</th>
+						<th data-options="field:'used_num',width:80">已用数量</th>
+						<th data-options="field:'limit_num',width:80">限领数量</th>
+						<th data-options="field:'province_name',width:100">使用地区</th>
+						<th data-options="field:'state',width:80">状态</th>
+						<th data-options="field:'send_status',width:80" formatter="formatSendStatus">发放状态</th>
+						<th data-options="field:'action',width:300" align="center" formatter="formatAction">操作</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</form>
+	<div id="coupons-dialog" ></div>
+</div>
+<script type="text/javascript">
+//日期操作
+function formatDate(value, row, index){
+	if (value == null || value == 0) {
+		return "";
+	} else {
+		return getFormatDateByLong(value, "yyyy-MM-dd");
+	}
+}
+
+//类型操作
+function formatType(value, row, index){
+	var val = "";
+	
+	if (value == 0) {
+		val = "满减券";
+	} else if (value == 1) {
+		val = "折扣券";
+	} else {
+		val = "现金券";
+	}
+	
+	return val;
+}
+
+//优惠券面额操作
+function formatMoney(value, row, index){
+	var val = "";
+	
+	if (value == 0) {
+		val = "";
+	} else if (value == "") {
+		val = "";
+	} else {
+		val = value;
+	}
+	
+	return val;
+}
+
+//优惠券面额操作
+function formatOrderMoney(value, row, index){
+	var val = "";
+	
+	if (value == "") {
+		val = "无限制";
+	} else {
+		val = value;
+	}
+	
+	return val;
+}
+
+//发放状态操作
+function formatSendStatus(value, row, index){
+	var val = "";
+	
+	if (value == 0) {
+		val = "未发放";
+	} else if (value == 1) {
+		val = "已发放";
+	}
+	
+	return val;
+}
+
+//操作
+function formatAction(value, row, index) {
+	var val = "";
+	if (row.state != '已失效') {
+		if (row.send_status == 0) {
+			val += "<a class='easyui-linkbutton' title='修改优惠券信息' href='javascript:void(0);' onclick='edit("+ row.coupons_id 
+					+ ")'>修改</a>&nbsp;&nbsp;&nbsp;<a class='easyui-linkbutton' title='发放后不可再修改' href='javascript:void(0);' onclick='send(" + row.coupons_id 
+					+ "," + row.coupons_stock + ")'>发放</a>&nbsp;&nbsp;&nbsp;<a class='easyui-linkbutton' title='将优惠券置为无效' href='javascript:void(0);' onclick='invalid(" + row.coupons_id + ")'>无效</a>"; 
+		}
+		if (row.send_status == 1) {
+			val += "<a class='easyui-linkbutton' title='追加优惠券发放的数量' href='javascript:void(0);' onclick='append("+ row.coupons_id 
+					+ ")'>追加</a>&nbsp;&nbsp;&nbsp;<a class='easyui-linkbutton' title='查看已发放的优惠券信息' href='javascript:void(0);' onclick='newTab(\"查看已发放的优惠券\",\"${ctx}/b2b2c/admin/self-coupons/list-detail.do?coupons_id="
+					+ row.coupons_id + "\")'>查看</a>&nbsp;&nbsp;&nbsp;<a class='easyui-linkbutton' title='按条件向会员发放优惠券' href='javascript:void(0);' onclick='newTab(\"按条件发放优惠券\",\"${ctx}/b2b2c/admin/self-coupons/send-for-member.do?coupons_id="
+					+ row.coupons_id + "\")'>分配</a>&nbsp;&nbsp;&nbsp;<a class='easyui-linkbutton' title='将优惠券置为无效' href='javascript:void(0);' onclick='invalid(" + row.coupons_id + ")'>无效</a>";
+		}
+	} else {
+		if (row.send_status == 0) {
+			val += "<a class='easyui-linkbutton' title='将优惠券删除' href='javascript:void(0);' onclick='del(" + row.coupons_id + ")'>删除</a>";
+		}
+		if (row.send_status == 1) {
+			val += "<a class='easyui-linkbutton' title='查看已发放的优惠券信息' href='javascript:void(0);' onclick='newTab(\"查看已发放的优惠券\",\"${ctx}/b2b2c/admin/self-coupons/list-detail.do?coupons_id="
+				+ row.coupons_id + "\")'>查看</a>&nbsp;&nbsp;&nbsp;<a class='easyui-linkbutton' title='将优惠券删除' href='javascript:void(0);' onclick='del(" + row.coupons_id + ")'>删除</a>";
+		}
+	}
+	
+	return val;
+}
+
+//添加优惠券
+function add(){
+	$("#coupons-dialog").show();
+	$("#coupons-dialog").dialog({
+		title : "新增优惠券",
+		width : 600,
+		top:10,
+		height : 550,
+		closed : false,
+		cache : false,
+		href : "${ctx}/b2b2c/admin/self-coupons/add.do",
+		modal : true,
+		buttons : [ {
+			text : '保存',
+			iconCls : 'icon-ok',
+			handler : function() {
+				 var savebtn = $(this);
+　　				 var disabled = savebtn.hasClass("l-btn-disabled");
+　　				 if(!disabled){
+　　					saveAdd(savebtn);
+	　　			 }
+			}
+		}, {
+			text : '取消',
+			handler : function() {
+				$("#coupons-dialog").dialog('close');
+			}
+		} ]
+	});
+}
+
+//修改优惠券
+function edit(coupons_id){
+	$("#coupons-dialog").show();
+	$("#coupons-dialog").dialog({
+		title : "修改优惠券",
+		width : 600,
+		top:10,
+		height : 550,
+		closed : false,
+		cache : false,
+		href : "${ctx}/b2b2c/admin/self-coupons/edit.do?coupons_id="+coupons_id,
+		modal : true,
+		buttons : [ {
+			text : '保存',
+			iconCls : 'icon-ok',
+			handler : function() {
+				 var savebtn = $(this);
+　　				 var disabled = savebtn.hasClass("l-btn-disabled");
+　　				 if(!disabled){
+　　					saveEdit(savebtn);
+	　　			 }
+			}
+		}, {
+			text : '取消',
+			handler : function() {
+				$("#coupons-dialog").dialog('close');
+			}
+		} ]
+	});
+}
+
+//追加发放优惠券
+function append(coupons_id){
+	$("#coupons-dialog").show();
+	$("#coupons-dialog").dialog({
+		title : "追加发放数量",
+		width : 500,
+		top:10,
+		height : 200,
+		closed : false,
+		cache : false,
+		href : "${ctx}/b2b2c/admin/self-coupons/append.do",
+		modal : true,
+		buttons : [ {
+			text : '保存',
+			iconCls : 'icon-ok',
+			handler : function() {
+				 var savebtn = $(this);
+　　				 var disabled = savebtn.hasClass("l-btn-disabled");
+　　				 if(!disabled){
+　　					saveAppend(savebtn,coupons_id);
+	　　			 }
+			}
+		}, {
+			text : '取消',
+			handler : function() {
+				$("#coupons-dialog").dialog('close');
+			}
+		} ]
+	});
+}
+
+//保存新增优惠券
+function saveAdd(savebtn) {
+	var formflag = $("#add-form").form('validate');
+
+	if (formflag) {
+		$.Loading.show("正在保存请稍候...");
+		savebtn.linkbutton("disable");
+		var options = {
+			url : "${ctx}/b2b2c/admin/self-coupons/save-add.do",
+			type : "POST",
+			dataType : 'json',
+			success : function(result) {
+				if (result.result == 1) {
+					$.Loading.successMessage(result.message, "3000");
+					$("#coupons-dialog").dialog('close');
+					$("#coupons-data").datagrid('reload');
+				}
+				if (result.result == 0) {
+					$.Loading.errorMessage(result.message, "3000");
+				}
+				savebtn.linkbutton("enable");
+			},
+			error : function(e) {
+				$.Loading.error("出现错误 ，请重试");
+				savebtn.linkbutton("enable");
+			}
+		};
+		$("#add-form").ajaxSubmit(options);
+	}
+}
+
+//保存修改优惠券
+function saveEdit(savebtn) {
+	var formflag = $("#edit-form").form('validate');
+
+	if (formflag) {
+		$.Loading.show("正在保存请稍候...");
+		savebtn.linkbutton("disable");
+		var options = {
+			url : "${ctx}/b2b2c/admin/self-coupons/save-edit.do",
+			type : "POST",
+			dataType : 'json',
+			success : function(result) {
+				if (result.result == 1) {
+					$.Loading.successMessage(result.message, "3000");
+					$("#coupons-dialog").dialog('close');
+					$("#coupons-data").datagrid('reload');
+				}
+				if (result.result == 0) {
+					$.Loading.errorMessage(result.message, "3000");
+				}
+				savebtn.linkbutton("enable");
+			},
+			error : function(e) {
+				$.Loading.error("出现错误 ，请重试");
+				savebtn.linkbutton("enable");
+			}
+		};
+		$("#edit-form").ajaxSubmit(options);
+	}
+}
+
+//保存追加发放的优惠券数量
+function saveAppend(savebtn,coupons_id) {
+	var formflag = $("#append-form").form('validate');
+
+	if (formflag) {
+		$.Loading.show("正在保存请稍候...");
+		savebtn.linkbutton("disable");
+		var options = {
+			url : "${ctx}/b2b2c/admin/self-coupons/append-coupons.do?coupons_id="+coupons_id,
+			type : "POST",
+			dataType : 'json',
+			success : function(result) {
+				if (result.result == 1) {
+					$.Loading.successMessage(result.message, "3000");
+					$("#coupons-dialog").dialog('close');
+					$("#coupons-data").datagrid('reload');
+				}
+				if (result.result == 0) {
+					$.Loading.errorMessage(result.message, "3000");
+				}
+				savebtn.linkbutton("enable");
+			},
+			error : function(e) {
+				$.Loading.error("出现错误 ，请重试");
+				savebtn.linkbutton("enable");
+			}
+		};
+		$("#append-form").ajaxSubmit(options);
+	}
+}
+
+//发放优惠券
+function send(coupons_id, coupons_stock){
+	if (!confirm("注意：优惠券发放后不可再修改！确定要发放优惠券吗？")) {	
+		return false;
+	}
+    $.ajax({
+        url : "${ctx}/b2b2c/admin/self-coupons/send-coupons.do?coupons_id="+coupons_id,
+        cache : false,
+        dataType: "json",
+        success : function(data) {
+            if(data.result==1){
+                $.Loading.successMessage("已成功发放" + coupons_stock + "张优惠券！", "3000");
+                $("#coupons-data").datagrid('reload');
+            }else{
+            	$.Loading.errorMessage(data.message, "3000");
+            }
+        },
+        error : function() {
+        	$.Loading.errorMessage('出现错误，请重试！');
+        }
+    });
+}
+
+//设置优惠券失效
+function invalid(coupons_id){
+	if (!confirm("注意：已被领取的优惠券不会受到此操作的影响，仍可正常使用！确定要将此优惠券设置为失效状态吗？")) {	
+		return false;
+	}
+    $.ajax({
+        url : "${ctx}/b2b2c/admin/self-coupons/invalid-coupons.do?coupons_id="+coupons_id,
+        cache : false,
+        dataType: "json",
+        success : function(data) {
+            if(data.result==1){
+                $.Loading.successMessage(data.message, "3000");
+                $("#coupons-data").datagrid('reload');
+            }else{
+            	$.Loading.errorMessage(data.message, "3000");
+            }
+        },
+        error : function() {
+        	$.Loading.errorMessage('出现错误，请重试！');
+        }
+    });
+}
+
+//删除优惠券
+function del(coupons_id){
+	if (!confirm("确定要删除此优惠劵吗？")) {	
+		return false;
+	}
+    $.ajax({
+        url : "${ctx}/b2b2c/admin/self-coupons/delete-coupons.do?coupons_id="+coupons_id,
+        cache : false,
+        dataType: "json",
+        success : function(data) {
+            if(data.result==1){
+                $.Loading.successMessage(data.message, "3000");
+                $("#coupons-data").datagrid('reload');
+            }else{
+            	$.Loading.errorMessage(data.message, "3000");
+            }
+        },
+        error : function() {
+        	$.Loading.errorMessage('出现错误，请重试！');
+        }
+    });
+}
+
+$(function() {
+	$(".searchAdvanced").hide();
+	//高级查询按钮
+	$("#aAdvanced").click(function() {
+		if ($("#Advanced").val() == "0") {
+			$("#Advanced").val(1);
+			$("#simpleSearch").hide();
+			$(".buttonArea #coupons-type").val("");
+			$("#aAdvanced").addClass("searchAdvancedS");
+		} else {
+			reset();
+			$("#Advanced").val(0);
+			$("#simpleSearch").show();
+			$("#aAdvanced").removeClass("searchAdvancedS");
+		}
+		$(".searchAdvanced").slideToggle("slow");
+	});
+	
+	$("#resetInput").click(function(){
+		reset();
+	});
+});
+
+//搜索
+function searchCoupons() {
+
+	var searchtype = $("#Advanced").val();
+	var coupons_type = $("#coupons-type").val();
+	var status = $("#coupons-status").val();
+	var send_status = $("#send-status").val();
+	var province_id = $("#province-id").val();
+	var coupons_name = $.trim($("#coupons-name").val());
+	var start_time = $('#start-time').datebox('getValue');
+	var end_time = $('#end-time').datebox('getValue');
+	if (start_time != "" && end_time != "") {
+		if (end_time <= start_time) {
+			$.Loading.errorMessage("注意：开始时间不能大于结束时间","1500");
+			return false;
+		}
+	}
+	$("#coupons-data").datagrid('load', {
+		stype : searchtype,
+		coupons_type : coupons_type,
+		status : status,
+		send_status : send_status,
+		province_id : province_id,
+		coupons_name : coupons_name,
+		start_time : start_time,
+		end_time : end_time,
+		page : 1
+	});
+}
+
+//定义一个刷新datagrid的方法，将其保存到window.top中
+window.top["reload_Abnormal_Monitor"]=function(){
+    $("#coupons-data").datagrid("reload");
+};
+
+//初始化高级搜索条件
+function reset(){
+	$("#coupons-name").val("");
+	$(".searchAdvanced #coupons-type").val("");
+	$("#coupons-status").val("");
+	$("#send-status").val("");
+	$("#province-id").val(0);
+	$('#start-time').datebox('setValue', '');
+	$('#end-time').datebox('setValue', '');
+}
+
+</script>
+<#include '/admin/footer.html' >

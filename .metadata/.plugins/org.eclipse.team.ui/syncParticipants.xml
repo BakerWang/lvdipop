@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<syncparticipants>
+<participant displayName="Git (b2b2c)" id="org.eclipse.egit.ui.modelCompareParticipant" secondary_id="1523333949844">
+<data forceFetch="false" root="false">
+<org.eclipse.team.ui.MODEL_PARTICIPANT_SETTINGS org.eclipse.team.ui.MODEL_PARTICIPANT_DESCRIPTION="b2b2c" startupAction="none">
+<org.eclipse.team.ui.MODEL_PARTICIPANT_REFRESH_SCHEDULE org.eclipse.team.ui.CTX_REFRESHSCHEDULE_ENABLED="false" org.eclipse.team.ui.CTX_REFRESHSCHEDULE_INTERVAL="3600" org.eclipse.team.ui.CTX_REFRESHSCHEDULE_RUNONCE="false"/>
+<org.eclipse.team.ui.MODEL_PARTICIPANT_MAPPINGS modelProviderId="org.eclipse.core.resources.modelProvider">
+<mappings>
+<resources resourcePath="/b2b2c" resourceType="4"/>
+</mappings>
+</org.eclipse.team.ui.MODEL_PARTICIPANT_MAPPINGS>
+</org.eclipse.team.ui.MODEL_PARTICIPANT_SETTINGS>
+<gitSynchronizeData container="D:/workspace2Eclipse/b2b2c" dstRev="HEAD" inludeLocal="true" srcRev="HEAD"/>
+</data>
+</participant>
+<participant displayName="SVN (/b2b2c-core/src/core/com/enation/app/b2b2c/core/store/service/impl/StoreManager.java)" id="org.tigris.subversion.subclipse.participant" secondary_id="1519633729636">
+<data root="false">
+<org.eclipse.team.ui.TEAMSUBSRCIBERSETTINGS org.eclipse.team.ui.SCOPE_TYPE="ResourceScope">&#x0A;<org.eclipse.team.ui.TEAMSUBSRCIBER_REFRESHSCHEDULE org.eclipse.team.ui.CTX_REFRESHSCHEDULE_ENABLED="false" org.eclipse.team.ui.CTX_REFRESHSCHEDULE_INTERVAL="3600" org.eclipse.team.ui.CTX_REFRESHSCHEDULE_RUNONCE="false"/>
+<resource_scope_roots resource_scope_root_resource="/b2b2c-core/src/core/com/enation/app/b2b2c/core/store/service/impl/StoreManager.java"/>
+</org.eclipse.team.ui.TEAMSUBSRCIBERSETTINGS>
+</data>
+</participant>
+</syncparticipants>

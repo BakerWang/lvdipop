@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <#assign title = '线下使用优惠券' />
+    <#include '/new_store/common/header.html' />
+</head>
+<body>
+<#assign mainPageName = 'main_promotions' />
+<#assign lowerPageName = 'lower_promotions_use' />
+<#include '/new_store/common/sidebar.html' />
+<div class="app-nav">
+    <ul class="list-nav" onclick="location.reload(); ">
+        <li><a href="javascript: void(0);">线下使用优惠券</a></li>
+    </ul>
+</div>
+
+<!--主页面区↓-->
+<div  class="app-wappler">
+    <div class="inner-app-wappler">
+        <div class="coupon">
+            <form id="form-id" class="store_coupons_form">
+            	<div class="total-price">
+            		<span>请填写客户消费金额：</span>
+					<input type="text" name="total_price" class="form-control price"/>
+					<span class="error-msg1"></span>
+            	</div>
+				<div class="coupons-code">
+					<span>请填写优惠券识别码：</span>
+					<input type="text" name="mcoup_code" class="form-control mcoup-code"/>
+					<a href="javascript:void(0);"  class="btn btn-info use-coupons" title="确定使用优惠券">确定使用</a>
+					<span class="error-msg2"></span>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$(".use-coupons").click(function(){
+		var price = $(".price").val();
+		var code = $(".mcoup-code").val();
+		
+		if (price == "") {
+			$(".error-msg1").html("请填写客户消费金额！");
+			return false;
+		} else {
+			if (!checkPrice(price)) {
+				$(".error-msg1").html("输入的消费金额格式不正确！");
+				return false;
+			} else {
+				$(".error-msg1").html("");
+			}
+		}
+		
+		$.ajax({
+            url : "${ctx}/api/customized/member-coupons/check-code.do?coupons_code="+ code + "&price=" + price,
+            cache : false,
+            dataType: "json",
+            success : function(data) {
+                if(data.result==1){
+                	$(".error-msg1").html("");
+                	$(".error-msg2").html("");
+                	
+                	$.confirm(data.message, function(){
+                        $.ajax({
+                            url : "${ctx}/api/customized/member-coupons/use-coupons.do?coupons_code="+ code,
+                            cache : false,
+                            dataType: "json",
+                            success : function(data) {
+                                if(data.result==1){
+                                	$(".price").val("");
+                                	$(".mcoup-code").val("");
+                                    $.message.success(data.message, "reload");
+                                }else{
+                                    $.message.error(data.message);
+                                }
+                            },
+                            error : function() {
+                                $.message.error("出现错误，请重试！");
+                            }
+                        });
+                    });
+                	
+                }else{
+                    $(".error-msg2").html(data.message);
+                }
+            },
+            error : function() {
+                $.message.error("出现错误，请重试！");
+            }
+        });
+	});
+});
+
+function checkPrice(price){
+	return (/^(([1-9]\d*)|\d)(\.\d{1,2})?$/).test(price.toString());
+}
+</script>
+<style>
+.mcoup-code, .price {
+	height: 30px;
+	width: 200px;
+	display: inline-block;
+}
+.use-coupons {
+	margin-left: 10px;
+}
+.error-msg1, .error-msg2 {
+	margin-left: 10px;
+	color: red;
+}
+.coupons-code{
+	margin-top: 15px;
+}
+</style>
+</body>
+</html>

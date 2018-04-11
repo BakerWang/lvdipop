@@ -1,0 +1,66 @@
+<#-- 创建获取会员当前拥有的满足订单条件的店铺优惠券集合标签 --> 
+<#assign memberStoreCouponsTag = newTag("memberStoreCouponsTag") > 
+<#-- 调用获取会员当前拥有的满足订单条件的店铺优惠券集合标签 --> 
+<#assign memberStoreCoupons = memberStoreCouponsTag("{'store_id':${store.store_id!''},'storeprice':${store.storeprice.orderPrice?string('0.00')}}")!''>
+<span>店铺优惠劵：</span>
+
+<select style="width: 100px;" name="bonusid"  id="bonusid_${store.store_id}" storeid="${store.store_id}"  class="store_bonus" autocomplete="off"  >
+	<option value="0" selected="selected">不使用优惠劵</option>
+	<#list memberStoreCoupons as coupons>
+		<option value="${coupons.mcoup_id!0}">${coupons.mcoup_name!''}</option>
+	</#list>
+</select>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<#assign storeDlytype = store.shiplist>
+<span>店铺配送方式：</span>
+<select name="shippingId" id="type_${store.store_id}" class="store_dlyss" storeid="${store.store_id}" autocomplete="off" > 
+	<#list storeDlytype as s>
+		<option value="${s.type_id!0}">${s.name}&nbsp;&nbsp;&nbsp;&nbsp;${s.shipPrice}&nbsp;元</option>
+	</#list>
+</select>
+<script type="text/javascript">
+$(function(){
+	$(".store_bonus").change(function(){
+		var regionid= $("#regionid").val();
+		var $this= $(this);
+		var storeid = $this.attr("storeid");
+		var typeid=$("#type_"+storeid+"").val(); 
+		var args = $("#bonusid_"+storeid+"").val(); 
+		changeArgsType(storeid,typeid,regionid,args);
+	});
+	
+	$(".store_dlyss").change(function(){
+		
+		var regionid= $("#regionid").val();
+		var $this= $(this);
+		var storeid = $this.attr("storeid");
+		var typeid=$this.val(); 
+		var args = $("#bonusid_"+storeid+"").val(); 
+		changeArgsType(storeid,typeid,regionid,args);
+	});
+});
+
+/**
+ * 更改优惠券或配送方式
+ */
+function changeArgsType(storeid,typeid,regionid,bonusid){
+	
+	$.ajax({
+		url:"${ctx}/api/customized/member-coupons/change-args-type.do",
+		data: {store_id : storeid, region_id : regionid, type_id : typeid, mcoup_id : bonusid},
+		dataType:"json",
+		success:function(res){
+			if(res.result==1){	 
+				$("#orderprice_"+storeid).html(price_format(res.data.storeprice.needPayMoney));
+				$("#discountPrice_"+storeid).html(price_format(res.data.storeprice.discountPrice));
+				$(".total_wrapper").load("${ctx}/checkout/checkout_total.html");
+			}else{
+				alert(res.message);
+			}
+		},
+		error:function(){
+			alert("糟糕，发生意外错误");
+		}
+	});	
+}
+</script>

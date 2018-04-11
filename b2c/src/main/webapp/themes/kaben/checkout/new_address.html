@@ -1,0 +1,80 @@
+<#assign regionSelect = "com.enation.app.shop.front.tag.goods.other.regions.RegionSelectDirective"?new()>
+<div class="address_div">
+	<div class="c_address">
+			<dl class="def">
+				<label class="chaeng-def">
+					<input type="checkbox"  value="1"  name="def_addr" class="addr12 new-addr" checked="checked">
+					<p>使用新地址作为默认收货地址</p>
+				</label>
+			</dl>
+			<dl>
+				<dt><em style="color: red;">*</em> 收货地区：</dt>
+				<dd><@regionSelect /></dd>
+			</dl>
+			<dl>
+				<dt><em style="color: red;">*</em> 地址：</dt>
+				<dd><input id="addr" type="text" class="text addr"   maxlength="30" 
+					name="shipAddr" isrequired="true" dataType="string" autocomplete="off"></dd>
+			</dl>
+			<dl>
+				<dt><em style="color: red;">*</em> 邮编：</dt>
+				<dd><input type="text" id="zip"  maxlength="6"
+					name="shipZip"   dataType="post_code"  class="text addr1" autocomplete="off" value=""></dd>
+			</dl>
+			<dl>
+				<dt><em style="color: red;">*</em> 收货人姓名：</dt>
+				<dd>
+					<input type="text" class="text addr2"  maxlength="30" id="name" value=""  name="shipName" autocomplete="off" isrequired="true" dataType="string" placeholder="请填写真实姓名，以免延误收货">
+		 		</dd>
+			</dl>
+			<dl>
+				<dt><em style="color: red;">*</em> 联系手机：</dt>
+				<dd><input type="text" class="text addr3" id="mobile" maxlength="11" name="shipMobile" autocomplete="off" placeholder="请填写准确联系电话，以免延误收货"></dd>
+			</dl>
+			<dl>
+				<dt> 联系电话：</dt>
+				<dd><input type="text" class="text addr4" id="tel" dataType="tel_num"
+					 maxlength="11" name="shipTel" autocomplete="off">
+					</dd>
+			</dl>
+	</div>
+<input type="button" value="保存地址" id="add_btn" class="checkout_new_address" style="cursor: pointer;"> 
+</div>
+<script>
+
+
+
+
+$(function(){
+	
+	RegionsSelect.regionChange=function(regionid,name,zipcode){
+		$("input[name='shipZip']").val(zipcode);
+	};
+	
+	$(".chaeng-def").click(function(){
+		var isDef = $(this).find("input").val();
+		if(isDef == "1"){
+			$(".new-addr").val("0");
+		}else{
+			$(".new-addr").val("1");
+		}
+	})
+	
+	 //添加收货地址 
+	function add_address(){
+		$("#add_the_address ").empty();
+		$("#add_the_address").append("<div id='address_div'></div>");
+		var html = $("#address_div").load("checkout/new_address.html");
+		var dialog = $.dialog({ 
+			title:"新增收货人地址",
+			width:700,
+			top:100,
+			content:html,
+			lock:true,
+			init:function(){
+		}});
+		//dialog.content("url:checkout/new_address.html");
+	}
+	checkOutAddress.saveAddress();
+})
+</script>

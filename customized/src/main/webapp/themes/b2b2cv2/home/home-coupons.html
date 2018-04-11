@@ -1,0 +1,111 @@
+<#-- 创建获取店铺所有已发放并且未失效的优惠券集合标签 --> 
+<#assign storeHomeCouponsListTag = newTag("storeHomeCouponsListTag") > 
+<#-- 调用获取店铺所有已发放并且未失效的优惠券集合标签 --> 
+<#assign couponsList = storeHomeCouponsListTag("{'store_id':${store_id!''}}")!''>
+
+<div class="subNavBox" style="position: fixed;top: 100px;right: 10px;background: white;">
+	<div class="subNav currentDd currentDt">优惠券</div>
+   	<ul class="navContent " style="display:block">	
+   		<#if couponsList?? >
+	   		<#list couponsList as coupons>
+				<li onclick="openDialog(${coupons.coupons_id},this);" coupons_type="${coupons.coupons_type}" coupons_money="${coupons.coupons_money!''}"
+					 coupons_discount="${coupons.coupons_discount!''}" min_order_money="${coupons.min_order_money!''}" >${coupons.coupons_name!''}</li>
+       		</#list>
+       	<#else>
+       		<li>无优惠劵</li>
+       </#if>
+    </ul>
+	<div class="subNav">客服</div>
+    <ul class="navContent">
+    	<#if store.qq??>
+       		<li style="padding:0px;"><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=${store.qq}&amp;site=qq&amp;menu=yes" style="width:100%;">客服</a></li>
+       	</#if>
+    </ul>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$(".subNav").click(function(){
+		$(this).toggleClass("currentDd").siblings(".subNav").removeClass("currentDd")
+		$(this).toggleClass("currentDt").siblings(".subNav").removeClass("currentDt")
+		$(this).next(".navContent").slideToggle(300).siblings(".navContent").slideUp(500)
+	})	
+});
+
+function openDialog(couponsid,obj){
+	var coupons_type = $(obj).attr("coupons_type");
+	var coupons_money = $(obj).attr("coupons_money");
+	var coupons_discount = $(obj).attr("coupons_discount");
+	var min_order_money = $(obj).attr("min_order_money");
+	
+	var cont = "";
+	var orderMoney = "";
+	
+	//如果优惠券类型为满减券 0：满减券，1：折扣券，2：现金券
+	if (coupons_type == 0) {
+		cont = coupons_money + "元满减券";
+		orderMoney = "单笔订单购满" + min_order_money + "元使用";
+	} else if (coupons_type == 1) {
+		cont = coupons_discount + "%折扣券";
+		orderMoney = "单笔订单购满" + min_order_money + "元使用";
+	} else {
+		cont = coupons_money + "元现金券";
+		orderMoney = "单笔订单金额无限制";
+	}
+	
+	dialog = $.dialog({
+		title : '领取优惠劵',
+		width : 420,
+		height : 120,
+		lock : true,
+		min : false,
+		max : false,
+		content:'请领取 店铺【${store.store_name}】的 <span style="font-size: 20px;">'+cont+'</span> ('+orderMoney+')',
+		button:[{
+			name : '领取',
+			focus: true,
+			callback : function() {
+				receiveCoupons(dialog,couponsid);
+				return false;
+			}
+		}, {
+			name : '取消'
+		}]
+		
+	});
+}
+
+function receiveCoupons(dialog,couponsid){
+	$.ajax({
+		url : "${ctx}/api/customized/member-coupons/receive-coupons.do?store_id=${store_id!0}&coupons_id="+couponsid,
+		cache : false,
+		dataType: "json",
+		success : function(data) {
+			if (data.result == 1) {
+				alert("领取成功");
+				dialog.reload();
+			}
+			if (data.result == 0) {
+				alert(data.message);
+			}
+			if(member==null||member==''){
+				login_dialog(window.location.href);
+			}
+			
+		},
+		error : function() {
+			alert("出现错误,请重试！");
+		}
+	});
+}
+</script>
+
+<style>
+.subNavBox{width:100px;border:solid 1px #e5e3da;margin:100px auto;}
+.subNav{border-bottom:solid 1px #e5e3da;cursor:pointer;font-weight:bold;font-size:14px;color:#999;line-height:28px;padding-left:10px;}
+.subNav:hover{color:#277fc2;}
+.currentDd{color:#277fc2}
+.navContent{display: none;border-bottom:solid 1px #e5e3da;}
+.navContent li a{display:block;width:100px;heighr:28px;text-align:center;font-size:14px;line-height:28px;color:#333}
+.navContent li a:hover{color:#fff;background-color:#277fc2}
+</style>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;AlipaySubmit.java&apos; to &apos;b2b2c-mobile-api/src/main/java/com.enation.app.shop.mobile.payment.alipay.util&apos;&#x0D;&#x0A;- Original project: &apos;shop-core&apos;&#x0D;&#x0A;- Destination element: &apos;b2b2c-mobile-api/src/main/java/com.enation.app.shop.mobile.payment.alipay.util&apos;&#x0D;&#x0A;- Original element: &apos;com.enation.app.shop.component.payment.plugin.alipay.sdk33.util.AlipaySubmit.java&apos;" description="Copy compilation unit" destination="=b2b2c-mobile-api/src\/main\/java&lt;com.enation.app.shop.mobile.payment.alipay.util" element1="/src\/component&lt;com.enation.app.shop.component.payment.plugin.alipay.sdk33.util{AlipaySubmit.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1490944432219" units="1" version="1.0"/>
+</session>

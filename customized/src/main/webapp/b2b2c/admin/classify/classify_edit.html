@@ -1,0 +1,45 @@
+<style>
+	.combo{display:inline}
+	.combo-arrow{margin:2px 1px 0px 0px}
+</style>
+<div class="easyui-panel" style="border-style: none;">
+	<div style="padding: 10px 0 10px 60px">
+		<form id="classifyeditForm" method="post" class="validate">
+			<table>
+				<tr>
+					<th>分类名称</th>
+					<td><input class="input_text easyui-validatebox" type="text" id="classify_name"
+						name="classify_name" data-options="required:true" maxlength="60" value="${classifys.classify_name}"></input>
+						
+					</td>
+
+				</tr> 
+				<tr>
+					<th>地区:</th>
+					<td>
+						<select class="easyui-validatebox input_text validatebox-text" name="address_id" data-options="required:true">
+							<#list regions as region >
+								<#if address_id == region.region_id>
+									<option value="${region.region_id}" selected >${region.local_name}</option>
+								<#else>
+									<option value="${region.region_id}" >${region.local_name}</option>
+								</#if>
+								
+							</#list>
+					</select>
+					</td>
+				</tr>
+				<tr>
+					<th>排序</th>
+					<td><input class="input_text easyui-numberbox" type="text" 
+						name="classify_sort" data-options="required:true" maxlength="60" value="${classifys.classify_sort!'1'}"></input>
+						
+					</td>
+
+				</tr> 
+			</table>
+			<input type="hidden" name="sclassify_id" value="${classifys.sclassify_id}" >
+			<input type="hidden" name="grade" value="${classifys.grade!'1'}">
+		</form>
+	</div>
+</div>

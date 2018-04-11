@@ -1,0 +1,198 @@
+<#include '/admin/header.html' >
+
+<div id="loading"></div>
+<div class="main">
+	<div class='buttonArea' style="height: auto;">
+		<a href="javascript:void(0)" class="button" onclick="append()">添加</a>
+	</div>
+	<div class="clear height10"></div>
+	
+		<table id="classifydata" >
+		</table>
+	
+</div>
+
+<div id="divdia"></div>
+<script>
+	
+
+
+	$(initPage())
+	
+	function initPage(){
+		$("#classifydata").treegrid({
+			fitColumns:'true',
+		    url:'${ctx}/b2b2c/admin/classify/list-children.do?parent_id=0',
+		    animate:false,
+		    idField:'sclassify_id',
+		    treeField:'classify_name',
+		    columns:[[
+		        {field:'sclassify_id',title:'ID',width:10},
+		        {field:'classify_name',title:'名称',width:200},
+		        {field:'address',title:'地区',width:200,formatter:formatAddress},
+		        {field:'classify_sort',title:'排序',width:10},
+		        {field:'add',title:'添加子',width:25,formatter:formatAdd},
+		        {field:'edit',title:'编辑',width:25,formatter:formatEdit},
+		        {field:'delete',title:'删除',width:25,formatter:formatDelete}
+		    ]],
+		    onBeforeExpand:function(row,param){
+		        if(row){
+		        	$(this).treegrid('options').url="${ctx}/b2b2c/admin/classify/list-children.do?parent_id="+row.sclassify_id;
+		    	}
+		    }
+		});
+	    
+	}
+
+	function append(id, obj) {
+		var map = {}; // Map map = new HashMap();
+		if (!id) {
+			map["href"] = "${ctx}/b2b2c/admin/classify/add.do";
+			map["formId"] = "#classifyForm";
+			map["url"] = "${ctx}/b2b2c/admin/classify/save-add.do?ajax=yes";
+			map["title"] = "添加分类";
+			map["loadshow"] = "正在添加......";
+		} else {
+			if (obj == 1) {
+				map["href"] = "${ctx}/b2b2c/admin/classify/children.do?classify_id=" + id;
+				map["formId"] = "#childrenForm";
+				map["url"] = "${ctx}/b2b2c/admin/classify/save-add-children.do?ajax=yes";
+				map["title"] = "添加子分类";
+				map["loadshow"] = "正在修改......";
+			} else {
+				map["href"] = "${ctx}/b2b2c/admin/classify/edit.do?classify_id=" + id;
+				map["formId"] = "#classifyeditForm";
+				map["url"] = "${ctx}/b2b2c/admin/classify/save-edit.do?ajax=yes";
+				map["title"] = "修改分类";
+				map["loadshow"] = "正在修改......";
+			}
+
+		}
+		map["divDialog"] = "#divdia";
+		map["gridreload"] = "#classifydata";
+		addDialog(map);
+	}
+
+	function addDialog(map) {
+		$(map["divDialog"]).dialog({
+			title : map["title"],
+			width : 600,
+			height : 250,
+			closed : false,
+			cache : false,
+			href : map["href"],
+			modal : true,
+			buttons : [ {
+				text : '保存',
+				iconCls : 'icon-ok',
+				handler : function() {
+					var savebtn = $(this);
+	　　				var disabled=savebtn.hasClass("l-btn-disabled");
+	　　				if(!disabled){
+						 submitForm(map,savebtn);
+	　　				}
+				}
+			}, {
+				text : '取消',
+				handler : function() {
+					$(map["divDialog"]).dialog('close');
+				}
+			} ]
+		});
+		
+		//弹出窗dialog居中展示
+		$(map["divDialog"]).panel("move",{top:$(document).scrollTop() + ($(window).height()-250) * 0.5}); 
+		$(".window-shadow").css('display','none');
+	}
+	function submitForm(map,savebtn) {
+		var formflag = $(map["formId"]).form('validate');
+		if (formflag) {
+			$.Loading.show(map["loadshow"]);
+	 	 	savebtn.linkbutton("disable");	
+			var options = {
+				url : map["url"],
+				type : "POST",
+				dataType : 'json',
+				success : function(result) {
+					if (result.result == 1) {
+						$(map["divDialog"]).dialog('close');
+						//$(map["gridreload"]).treegrid('reload');
+						location.reload();
+						$.Loading.success(result.message);
+					}
+					if (result.result == 0) {
+						$.Loading.error(result.message);
+					}
+					savebtn.linkbutton("enable");
+				},
+				error : function(e) {
+					$.Loading.error("出现错误 ，请重试");
+					savebtn.linkbutton("enable");
+				}
+			};
+			$(map["formId"]).ajaxSubmit(options);
+		} 
+	}
+
+	function clearForm(map) {
+		$(map["formId"]).form('clear');
+	}
+
+	function formatAdd(value, row, index) {
+		var val = "<a href='javascript:void(0);' onclick='append("
+				+ row.sclassify_id
+				+ ",1)'><img class='add' src='${ctx}/shop/admin/images/transparent.gif'></a>";
+		return val;
+	}
+	function formatEdit(value, row, index) {
+		var val = "<a class='edit' title='修改' href='javascript:void(0);' onclick='append("
+				+ row.sclassify_id + ",2)' ></a>";
+		return val;
+	}
+	function formatDelete(value, row, index) {
+		var val = '<a href="javascript:;" onclick="del('
+				+ row.sclassify_id
+				+ ')"><img catid="'+row.region_id+'" class="delete" src="${ctx}/shop/admin/images/transparent.gif"></a>';
+		return val;
+	}
+	
+	function formatAddress(value, row, index) {
+		var val = "";
+		
+		if (row.grade == 1) {
+			val = row.province_name;
+		} else if (row.grade == 1) {
+			val = row.city_name;
+		} else {
+			val = row.city_name;
+		}
+		
+		return val;
+	}
+	
+
+	function del(id) {
+		if (!confirm("确认要删除该分类吗？")) {
+			return false;
+		}
+
+		$.Loading.show("正在删除该分类.");
+		var self = this;
+		$.ajax({
+			url : "${ctx}/b2b2c/admin/classify/delete.do?classify_id=" + id + "&ajax=yes",
+			dataType : "json",
+			success : function(res) {
+				$.Loading.success(res.message);
+				//$("#classifydata").treegrid('reload');
+				initPage(); 
+			},
+			error : function() {
+				alert("删除失败");
+				$.Loading.hide();
+			}
+		});
+	}
+
+	
+</script>
+<#include '/admin/footer.html' >

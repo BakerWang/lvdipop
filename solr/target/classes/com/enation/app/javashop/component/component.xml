@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="solr组件" version="1.0" javashop_version="6.1.0" author="javashop">
+	<plugins>
+		<plugin name="商品lucene索引插件" id="goodsIndexPlugin">
+			<bundle id="goodsPluginBundle"></bundle>
+		</plugin>
+
+		<plugin name="订单lucene索引插件" id="orderPlugin">
+			<bundle id="orderPluginBundle"></bundle>
+		</plugin>
+
+		<plugin name="商品评论插件" id="goodsCommentsPlugin">
+			<bundle id="goodsCommentsBundle"></bundle>
+		</plugin>
+		<plugin name="solr插件" id="solrSettingPlugin">
+			<bundle id="settingPluginBundle"></bundle>
+		</plugin>
+	</plugins>
+</component>

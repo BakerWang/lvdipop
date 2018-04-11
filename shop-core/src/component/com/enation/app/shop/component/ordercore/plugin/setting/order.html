@@ -1,0 +1,31 @@
+<div>
+	<div class="main" style="background-color: white;">
+		<table class="form-table">
+			<tr>
+				<th style="width: 230px;">取消订单超时天数：</th>
+				<td>
+					<input type="text" name="order.cancel_order_day"   value="${order.cancel_order_day!1}" class="input_text" onkeyup="this.value=this.value.replace(/\D/g,'')" maxlength="5" onkeydown="this.value=this.value.replace(/\D/g,'')" onblur="this.value=this.value.replace(/\D/g,'')">
+				</td>
+			</tr> 
+			<tr>
+				<th>收货超时，自动收货天数：</th>
+				<td>
+					<input type="text" name="order.rog_order_day"   value="${order.rog_order_day!1}" class="input_text" onkeyup="this.value=this.value.replace(/\D/g,'')" maxlength="5" onkeydown="this.value=this.value.replace(/\D/g,'')" onblur="this.value=this.value.replace(/\D/g,'')">
+				</td>
+			</tr>
+			<tr>
+				<th>超时评价，自动评价天数：</th>
+				<td>
+					<input type="text" name="order.comment_order_day"   value="${order.comment_order_day!1}" class="input_text" onkeyup="this.value=this.value.replace(/\D/g,'')" maxlength="5" onkeydown="this.value=this.value.replace(/\D/g,'')" onblur="this.value=this.value.replace(/\D/g,'')">
+				</td>
+			</tr>
+			<tr>
+				<th>退货收货超时，自动取消退货天数：</th>
+				<td>
+					<input type="text" name="order.cancel_sellback_day"   value="${order.cancel_sellback_day!1}" class="input_text" onkeyup="this.value=this.value.replace(/\D/g,'')" maxlength="5" onkeydown="this.value=this.value.replace(/\D/g,'')" onblur="this.value=this.value.replace(/\D/g,'')">
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+

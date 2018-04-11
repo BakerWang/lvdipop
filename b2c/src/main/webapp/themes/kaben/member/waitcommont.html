@@ -1,0 +1,25 @@
+<#assign memberWaitCommontListTag = newTag("memberWaitCommontListTag")>
+	<#assign memberWaitCommontList = memberWaitCommontListTag("{'goodsnum':6}")>
+		<#if memberWaitCommontList.waitcommentsList?size gt 0 >
+			<ul class="member-wait-goods">
+ 			<#list memberWaitCommontList.waitcommentsList as goods>	
+ 				<li rel="${goods.goods_id}">
+ 					<div class="wait-goods-img">
+ 						<a href="../goods-${goods.goods_id}.html" title="${goods.name}" class="img"> 
+							<@image src="${goods.thumbnail!''}" alt="${goods.name}" height="55" width="55" />
+						 </a>
+ 					</div>
+ 					<h3><a href="../goods-${goods.goods_id}.html"><@substring title="${goods.name}" length="20" dot="..." /></a></h3>
+ 					<h4>￥${goods.price?string("0.##")}</h4>
+ 					<div class="wait-go-goods btn">
+ 						<a href="../goods-${goods.goods_id}.html" class="small-yellow">去评价</a>
+ 					</div>
+ 				</li>
+ 			</#list>
+			</ul>
+			<@ajaxpager pageno="${page!'1'}" pagesize="${memberWaitCommontList.pageSize}" totalcount="${memberWaitCommontList.totalCount}" />
+		<#else>
+			<div class="member-comment-wait">
+					<p class="member-right-blank">抱歉，暂时没有符合数据</p>
+				</div>
+		</#if>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;ExcelUtil.java&apos; to &apos;nju_crm/src/main/java/com.bizdata.commons.utils&apos;&#x0D;&#x0A;- Original project: &apos;LogBack_web&apos;&#x0D;&#x0A;- Destination element: &apos;nju_crm/src/main/java/com.bizdata.commons.utils&apos;&#x0D;&#x0A;- Original element: &apos;com.dicp.common.util.ExcelUtil.java&apos;" description="Copy compilation unit" destination="=nju_crm/src\/main\/java&lt;com.bizdata.commons.utils" element1="/src&lt;com.dicp.common.util{ExcelUtil.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1487836429617" units="1" version="1.0"/>
+</session>

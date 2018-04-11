@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;SellerStatus.java&apos; to &apos;b2b2c-mobile-api/src/main/java/com.enation.app.shop.mobile.utils&apos;&#x0D;&#x0A;- Original project: &apos;b2b2c-mobile-api&apos;&#x0D;&#x0A;- Destination element: &apos;b2b2c-mobile-api/src/main/java/com.enation.app.shop.mobile.utils&apos;&#x0D;&#x0A;- Original element: &apos;com.enation.app.shop.mobile.utils.SellerStatus.java&apos;" description="Copy compilation unit" destination="/src\/main\/java&lt;com.enation.app.shop.mobile.utils" element1="/src\/main\/java&lt;com.enation.app.shop.mobile.utils{SellerStatus.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1492577159663" units="1" version="1.0"/>
+</session>

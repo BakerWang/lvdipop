@@ -1,0 +1,8 @@
+#Tomcat publish data
+#Tue Apr 10 19:54:23 CST 2018
+org.eclipse.jst.j2ee.server\:core=D\:\\software\\apache-tomcat-7.0.72\\webapps\\b2b2c\\WEB-INF\\lib\\core-6.1.0.jar
+org.eclipse.jst.j2ee.server\:b2b2c-core=D\:\\software\\apache-tomcat-7.0.72\\webapps\\b2b2c\\WEB-INF\\lib\\b2b2c-core-6.1.0.jar
+org.eclipse.jst.j2ee.server\:cms-core=D\:\\software\\apache-tomcat-7.0.72\\webapps\\b2b2c\\WEB-INF\\lib\\cms-core-6.1.0.jar
+org.eclipse.jst.j2ee.server\:b2b2c=D\:\\software\\apache-tomcat-7.0.72\\webapps\\b2b2c
+org.eclipse.jst.j2ee.server\:shop-core=D\:\\software\\apache-tomcat-7.0.72\\webapps\\b2b2c\\WEB-INF\\lib\\shop-core-6.1.0.jar
+org.eclipse.jst.j2ee.server\:service-goods=D\:\\software\\apache-tomcat-7.0.72\\webapps\\b2b2c\\WEB-INF\\lib\\service-goods-6.1.0.jar
